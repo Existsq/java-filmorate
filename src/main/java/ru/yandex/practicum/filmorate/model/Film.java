@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -16,7 +15,6 @@ public class Film {
   Long id;
 
   @NotBlank(message = "Название фильма не может быть пустым")
-  @NotEmpty(message = "Название фильма не может быть пустым")
   String name;
 
   @Size(max = 200, message = "Описание не может быть длинее 200 символов")
