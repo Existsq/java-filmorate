@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -70,15 +71,13 @@ public class FilmService {
     }
   }
 
-  public Set<Long> getPopularByLikes(int count) {
-    Set<Long> result =
+  public List<Long> getPopularByLikes(int count) {
+    List<Long> result =
         likes.entrySet().stream()
-            .sorted(
-                Comparator.comparingInt((Map.Entry<Long, Set<Long>> e) -> e.getValue().size())
-                    .reversed())
+            .sorted(Comparator.comparingInt(e -> e.getValue().size()))
             .limit(count)
             .map(Map.Entry::getKey)
-            .collect(Collectors.toSet());
+            .collect(Collectors.toList()).reversed();
 
     log.debug("Топ {} популярных фильмов по лайкам: {}", count, result);
     return result;

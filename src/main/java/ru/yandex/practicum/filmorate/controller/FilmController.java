@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,11 +58,9 @@ public class FilmController {
   }
 
   @GetMapping("/popular")
-  public Set<Film> getTop10(@RequestParam(defaultValue = "10") int count) {
-    Set<Long> topFilms = filmService.getPopularByLikes(count);
+  public List<Film> getTop10(@RequestParam(defaultValue = "10") int count) {
+    List<Long> topFilms = filmService.getPopularByLikes(count);
 
-    return topFilms.stream()
-        .map(filmService::findById)
-        .collect(Collectors.toSet());
+    return topFilms.stream().map(filmService::findById).collect(Collectors.toList());
   }
 }
