@@ -71,11 +71,14 @@ public class FilmService {
   }
 
   public Set<Long> getPopularByLikes(int count) {
-    Set<Long> result = likes.entrySet().stream()
-        .sorted(Comparator.comparingInt((Map.Entry<Long, Set<Long>> e) -> e.getValue().size()).reversed())
-        .limit(count)
-        .map(Map.Entry::getKey)
-        .collect(Collectors.toSet());
+    Set<Long> result =
+        likes.entrySet().stream()
+            .sorted(
+                Comparator.comparingInt((Map.Entry<Long, Set<Long>> e) -> e.getValue().size())
+                    .reversed())
+            .limit(count)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toSet());
 
     log.debug("Топ {} популярных фильмов по лайкам: {}", count, result);
     return result;
