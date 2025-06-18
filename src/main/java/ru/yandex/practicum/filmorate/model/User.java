@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 
@@ -25,4 +26,6 @@ public class User {
 
   @Past(message = "День рождения не может быть в будущем")
   LocalDate birthday;
+
+  private Set<Long> friends;
 }
