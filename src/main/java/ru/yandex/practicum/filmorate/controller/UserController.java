@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,15 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/users")
 public class UserController {
   private final UserService userService;
-
-  @Autowired
-  public UserController(final UserService userService) {
-    this.userService = userService;
-  }
 
   @GetMapping
   public Collection<User> findAll() {

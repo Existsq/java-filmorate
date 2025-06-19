@@ -5,35 +5,69 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 @Slf4j
+@AllArgsConstructor
 @Service
 public class UserService {
   private final Map<Long, Set<Long>> friends = new HashMap<>();
   private final UserStorage userStorage;
 
-  @Autowired
-  public UserService(final UserStorage userStorage) {
-    this.userStorage = userStorage;
-  }
-
   public User create(User user) {
-    User created = userStorage.create(user);
+    if (user.getId() != null) {
+      throw new ValidationException("Нельзя создать пользователя с уже заданным id");
+    }
+    if (user.getName() == null) {
+      user.setName(user.getLogin());
+    }
+    User created = userStorage.save(user);
     log.info("Создан пользователь: {}", created);
     return created;
   }
 
   public User update(User user) {
-    User updated = userStorage.update(user);
+    if (user.getId() == null) {
+      throw new ValidationException("Поле id не может быть пустым");
+    }
+
+    User existing = userStorage.findById(user.getId());
+    if (existing == null) {
+      throw new NotFoundException("Пользователь с id " + user.getId() + " не найден");
+    }
+
+    applyUpdates(existing, user);
+
+    User updated = userStorage.save(existing);
     log.info("Обновлён пользователь: {}", updated);
     return updated;
+  }
+
+  private void applyUpdates(User target, User source) {
+    if (!Objects.equals(target.getName(), source.getName())) {
+      log.info("Имя изменено: {} -> {}", target.getName(), source.getName());
+      target.setName(source.getName());
+    }
+    if (!Objects.equals(target.getLogin(), source.getLogin())) {
+      log.info("Логин изменён: {} -> {}", target.getLogin(), source.getLogin());
+      target.setLogin(source.getLogin());
+    }
+    if (!Objects.equals(target.getEmail(), source.getEmail())) {
+      log.info("Email изменён: {} -> {}", target.getEmail(), source.getEmail());
+      target.setEmail(source.getEmail());
+    }
+    if (!Objects.equals(target.getBirthday(), source.getBirthday())) {
+      log.info("Дата рождения изменена: {} -> {}", target.getBirthday(), source.getBirthday());
+      target.setBirthday(source.getBirthday());
+    }
   }
 
   public Collection<User> findAll() {
