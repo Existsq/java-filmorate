@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -8,10 +9,11 @@ import java.time.LocalDate;
 import lombok.Builder;
 import lombok.Data;
 
-/** Film. */
 @Data
 @Builder
 public class Film {
+  private static final LocalDate CHECK_DATE = LocalDate.of(1895, 12, 28);
+
   Long id;
 
   @NotBlank(message = "Название фильма не может быть пустым")
@@ -26,7 +28,8 @@ public class Film {
   int duration;
 
   @AssertTrue(message = "Фильм не может быть раньше 28.12.1895")
+  @JsonIgnore
   public boolean isValidReleaseDate() {
-    return releaseDate == null || !releaseDate.isBefore(LocalDate.of(1895, 12, 28));
+    return releaseDate == null || !releaseDate.isBefore(CHECK_DATE);
   }
 }
