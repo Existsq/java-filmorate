@@ -5,27 +5,30 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.Set;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
 public class User {
-  Long id;
+  private Long id;
 
   @NotBlank(message = "Email обязателен")
   @Email(message = "Неверный формат почты")
-  String email;
+  private String email;
 
   @NotBlank(message = "Логин не может быть пустым")
   @Pattern(regexp = "^\\S+$", message = "Логин не может содержать пробелы")
-  String login;
+  private String login;
 
-  String name;
+  private String name;
 
   @Past(message = "День рождения не может быть в будущем")
-  LocalDate birthday;
+  private LocalDate birthday;
 
-  private Set<Long> friends;
+
+  public enum FriendshipStatus {
+    APPROVED,
+    AWAITING
+  }
 }
