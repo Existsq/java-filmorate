@@ -23,8 +23,7 @@ public class GenreDbStorage implements GenreStorage {
                 SELECT * FROM genres WHERE id = ?
                 ORDER BY id ASC
                 """,
-            new GenreRowMapper(),
-            id);
+            new GenreRowMapper(), id);
     return results.stream().findFirst();
   }
 
