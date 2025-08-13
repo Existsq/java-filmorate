@@ -24,7 +24,7 @@ class GenreDbStorageTest {
 
   @BeforeEach
   void setUp() {
-    genreStorage.findAll().forEach(g -> {});
+    genreStorage.findAll().forEach(g -> { });
   }
 
   @Test
