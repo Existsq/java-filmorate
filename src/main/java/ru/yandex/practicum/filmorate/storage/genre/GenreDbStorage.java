@@ -20,10 +20,11 @@ public class GenreDbStorage implements GenreStorage {
     List<Genre> results =
         jdbcTemplate.query(
             """
-                SELECT * FROM genres WHERE id = ?
-                ORDER BY id ASC
-                """,
-            new GenreRowMapper(), id);
+              SELECT * FROM genres WHERE id = ?
+              ORDER BY id ASC
+            """,
+            new GenreRowMapper(),
+            id);
     return results.stream().findFirst();
   }
 
@@ -31,9 +32,9 @@ public class GenreDbStorage implements GenreStorage {
   public Collection<Genre> findAll() {
     return jdbcTemplate.query(
         """
-            SELECT * FROM genres
-            ORDER BY id ASC
-            """,
+          SELECT * FROM genres
+          ORDER BY id ASC
+        """,
         new GenreRowMapper());
   }
 }
