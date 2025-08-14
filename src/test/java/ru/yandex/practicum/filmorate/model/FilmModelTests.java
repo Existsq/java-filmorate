@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.model;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.model.Film;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -125,6 +124,7 @@ public class FilmModelTests {
             .description("Some description")
             .duration(148)
             .releaseDate(LocalDate.of(2010, 7, 16))
+            .mpa(new MPA(1L, "G"))
             .build();
 
     mvc.perform(

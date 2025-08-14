@@ -5,14 +5,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -54,16 +47,13 @@ public class UserController {
 
   @GetMapping("/{id}/friends")
   public Set<User> getFriends(@PathVariable Long id) {
-    Set<Long> userFriends = userService.getFriends(id);
-
-    return userFriends.stream().map(userService::findById).collect(Collectors.toSet());
+    Set<Long> friendIds = userService.getFriends(id);
+    return friendIds.stream().map(userService::findById).collect(Collectors.toSet());
   }
 
   @GetMapping("/{id}/friends/common/{otherId}")
-  public Set<User> getCommonFriends(
-      @PathVariable("id") Long userId1, @PathVariable("otherId") Long userId2) {
-    Set<Long> userFriends = userService.getCommonFriends(userId1, userId2);
-
-    return userFriends.stream().map(userService::findById).collect(Collectors.toSet());
+  public Set<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+    Set<Long> commonFriendIds = userService.getCommonFriends(id, otherId);
+    return commonFriendIds.stream().map(userService::findById).collect(Collectors.toSet());
   }
 }

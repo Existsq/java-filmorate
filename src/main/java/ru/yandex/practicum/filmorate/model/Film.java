@@ -3,15 +3,20 @@ package ru.yandex.practicum.filmorate.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Film {
   private static final LocalDate CHECK_DATE = LocalDate.of(1895, 12, 28);
 
@@ -28,38 +33,14 @@ public class Film {
   @Positive(message = "Длительность фильма не может быть отрицательной")
   private int duration;
 
-  private Set<Genre> genres;
-
+  @NotNull(message = "MPA рейтинг обязателен")
   private MPA mpa;
+
+  private List<Genre> genres;
 
   @AssertTrue(message = "Фильм не может быть раньше 28.12.1895")
   @JsonIgnore
   public boolean isValidReleaseDate() {
     return releaseDate == null || !releaseDate.isBefore(CHECK_DATE);
-  }
-
-  public enum Genre {
-    COMEDY,
-    DRAMA,
-    THRILLER,
-    DOCUMENTARY,
-    CARTOON,
-    ACTION;
-  }
-
-  public enum MPA {
-    G,
-    PG,
-    PG13,
-    R,
-    NC17;
-
-    @Override
-    public String toString() {
-      if (name().length() == 4) {
-        return this.name().substring(0, 2) + "-" + this.name().substring(2);
-      }
-      return this.name();
-    }
   }
 }

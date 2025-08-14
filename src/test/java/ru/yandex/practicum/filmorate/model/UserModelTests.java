@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.model;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.model.User;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -23,13 +22,8 @@ public class UserModelTests {
 
   @Test
   public void testBlankEmail() throws Exception {
-    User user = User.builder()
-        .email(" ")
-        .login("Test")
-        .birthday(
-            LocalDate.now().minusMonths(4)
-        )
-        .build();
+    User user =
+        User.builder().email(" ").login("Test").birthday(LocalDate.now().minusMonths(4)).build();
 
     mvc.perform(
             post("/users")
@@ -40,11 +34,12 @@ public class UserModelTests {
 
   @Test
   public void testEmailWithoutAtSymbol() throws Exception {
-    User user = User.builder()
-        .email("testgmail.com")
-        .login("Test")
-        .birthday(LocalDate.now().minusMonths(4))
-        .build();
+    User user =
+        User.builder()
+            .email("testgmail.com")
+            .login("Test")
+            .birthday(LocalDate.now().minusMonths(4))
+            .build();
 
     mvc.perform(
             post("/users")
@@ -55,11 +50,12 @@ public class UserModelTests {
 
   @Test
   public void testBlankLogin() throws Exception {
-    User user = User.builder()
-        .email("test@gmail.com")
-        .login("")
-        .birthday(LocalDate.now().minusMonths(4))
-        .build();
+    User user =
+        User.builder()
+            .email("test@gmail.com")
+            .login("")
+            .birthday(LocalDate.now().minusMonths(4))
+            .build();
 
     mvc.perform(
             post("/users")
@@ -70,11 +66,12 @@ public class UserModelTests {
 
   @Test
   public void testLoginWithSpaces() throws Exception {
-    User user = User.builder()
-        .email("test@gmail.com")
-        .login("te st")
-        .birthday(LocalDate.now().minusMonths(4))
-        .build();
+    User user =
+        User.builder()
+            .email("test@gmail.com")
+            .login("te st")
+            .birthday(LocalDate.now().minusMonths(4))
+            .build();
 
     mvc.perform(
             post("/users")
@@ -85,10 +82,8 @@ public class UserModelTests {
 
   @Test
   public void testNullLogin() throws Exception {
-    User user = User.builder()
-        .email("test@gmail.com")
-        .birthday(LocalDate.now().minusMonths(4))
-        .build();
+    User user =
+        User.builder().email("test@gmail.com").birthday(LocalDate.now().minusMonths(4)).build();
 
     mvc.perform(
             post("/users")
@@ -99,11 +94,12 @@ public class UserModelTests {
 
   @Test
   public void testBirthdayInFuture() throws Exception {
-    User user = User.builder()
-        .email("test@gmail.com")
-        .login("te st")
-        .birthday(LocalDate.now().plusDays(4))
-        .build();
+    User user =
+        User.builder()
+            .email("test@gmail.com")
+            .login("te st")
+            .birthday(LocalDate.now().plusDays(4))
+            .build();
 
     mvc.perform(
             post("/users")
