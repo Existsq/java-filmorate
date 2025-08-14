@@ -20,7 +20,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 @Slf4j
 @Repository
-@Qualifier("UserDbStorage")
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
 

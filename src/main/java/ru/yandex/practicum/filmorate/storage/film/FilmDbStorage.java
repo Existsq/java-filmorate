@@ -19,7 +19,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 @Slf4j
 @Repository
-@Qualifier("FilmDbStorage")
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
 
