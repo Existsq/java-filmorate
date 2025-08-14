@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -149,15 +151,31 @@ public class FilmDbStorage implements FilmStorage {
   }
 
   private void updateFilmGenres(Film film) {
+    // Сначала очищаем старые связи
     jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", film.getId());
+
     if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-      String sql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
+      // Убираем дубликаты жанров
       Set<Long> genreIds = new HashSet<>();
-      for (Genre genre : film.getGenres()) {
-        if (genreIds.add(genre.id())) {
-          jdbcTemplate.update(sql, film.getId(), genre.id());
+      List<Long> uniqueGenreIds = film.getGenres().stream()
+          .map(Genre::id)
+          .filter(genreIds::add)
+          .toList();
+
+      String sql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
+
+      jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+        @Override
+        public void setValues(PreparedStatement ps, int i) throws SQLException {
+          ps.setLong(1, film.getId());
+          ps.setLong(2, uniqueGenreIds.get(i));
         }
-      }
+
+        @Override
+        public int getBatchSize() {
+          return uniqueGenreIds.size();
+        }
+      });
     }
   }
 
