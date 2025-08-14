@@ -7,7 +7,6 @@ import java.sql.Statement;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -157,25 +156,25 @@ public class FilmDbStorage implements FilmStorage {
     if (film.getGenres() != null && !film.getGenres().isEmpty()) {
       // Убираем дубликаты жанров
       Set<Long> genreIds = new HashSet<>();
-      List<Long> uniqueGenreIds = film.getGenres().stream()
-          .map(Genre::id)
-          .filter(genreIds::add)
-          .toList();
+      List<Long> uniqueGenreIds =
+          film.getGenres().stream().map(Genre::id).filter(genreIds::add).toList();
 
       String sql = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
 
-      jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
-        @Override
-        public void setValues(PreparedStatement ps, int i) throws SQLException {
-          ps.setLong(1, film.getId());
-          ps.setLong(2, uniqueGenreIds.get(i));
-        }
+      jdbcTemplate.batchUpdate(
+          sql,
+          new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps, int i) throws SQLException {
+              ps.setLong(1, film.getId());
+              ps.setLong(2, uniqueGenreIds.get(i));
+            }
 
-        @Override
-        public int getBatchSize() {
-          return uniqueGenreIds.size();
-        }
-      });
+            @Override
+            public int getBatchSize() {
+              return uniqueGenreIds.size();
+            }
+          });
     }
   }
 
