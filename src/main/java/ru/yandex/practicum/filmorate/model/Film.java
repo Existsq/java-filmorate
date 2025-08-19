@@ -36,10 +36,9 @@ public class Film {
   @NotNull(message = "MPA рейтинг обязателен")
   private MPA mpa;
 
-  @NotNull(message = "Режиссер обязателен")
-  private Director director;
-
   private List<Genre> genres;
+
+  private List<Director> directors;
 
   @AssertTrue(message = "Фильм не может быть раньше 28.12.1895")
   @JsonIgnore
