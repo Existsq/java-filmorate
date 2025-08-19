@@ -26,17 +26,18 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
 
     @Override
     public Optional<FilmReview> getById(long id) {
+        log.info("Ищем отзыв - " + id);
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
-        String sqlQuery = "SELECT fr.id, fr.content, fr.is_positive, fr.film_id, fr.user_id, IFNULL(ratings.diff, 0) AS usefull " +
+        String sqlQuery = "SELECT fr.reviewId, fr.content, fr.is_positive, fr.film_id, fr.user_id, IFNULL(ratings.diff, 0) AS useful " +
                 "FROM film_reviews fr " +
                 "LEFT JOIN (" +
-                    "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_positive THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_positive THEN 1 ELSE 0 END) AS diff " +
+                    "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_useful THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_useful THEN 1 ELSE 0 END) AS diff " +
                     "FROM film_review_ratings frr " +
                     "GROUP BY frr.film_review_id" +
-                ") AS ratings ON fr.id = ratings.film_review_id " +
-                "WHERE fr.id = :id";
+                ") AS ratings ON fr.reviewId = ratings.film_review_id " +
+                "WHERE fr.reviewId = :id";
 
         return namedJdbc.query(sqlQuery, params, filmReviewRowMapper).stream().findFirst();
     }
@@ -46,45 +47,54 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("limit", limit);
 
-        String sqlQuery = "SELECT fr.id, fr.content, fr.is_positive, fr.film_id, fr.user_id, IFNULL(ratings.diff, 0) AS usefull " +
+        String sqlQuery = "SELECT fr.reviewId, fr.content, fr.is_positive, fr.film_id, fr.user_id, IFNULL(ratings.diff, 0) AS useful " +
                 "FROM film_reviews fr " +
                 "LEFT JOIN (" +
-                "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_positive THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_positive THEN 1 ELSE 0 END) AS diff " +
+                "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_useful THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_useful THEN 1 ELSE 0 END) AS diff " +
                 "FROM film_review_ratings frr " +
                 "GROUP BY frr.film_review_id" +
-                ") AS ratings ON fr.id = ratings.film_review_id " +
-                "limit :limit";
+                ") AS ratings ON fr.reviewId = ratings.film_review_id " +
+                "LIMIT :limit";
 
         if (filmId != null) {
             if (filmDbStorage.findFilmById(filmId).isEmpty()) {
                 throw new NotFoundException("Фильм с id = " + filmId + " не найден");
             }
-            params.addValue("film_id", filmId);
-            sqlQuery = "SELECT fr.id, fr.content, fr.is_positive, fr.film_id, fr.user_id, IFNULL(ratings.diff, 0) AS usefull " +
+            params.addValue("filmId", filmId);
+            sqlQuery = "SELECT fr.reviewId, fr.content, fr.is_positive, fr.film_id, fr.user_id, IFNULL(ratings.diff, 0) AS useful " +
                     "FROM film_reviews fr " +
                     "LEFT JOIN (" +
-                    "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_positive THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_positive THEN 1 ELSE 0 END) AS diff " +
+                    "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_useful THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_useful THEN 1 ELSE 0 END) AS diff " +
                     "FROM film_review_ratings frr " +
                     "GROUP BY frr.film_review_id" +
-                    ") AS ratings ON fr.id = ratings.film_review_id " +
-                    "WHERE fr.film_id = :film_id " +
-                    "limit :limit";
+                    ") AS ratings ON fr.reviewId = ratings.film_review_id " +
+                    "WHERE fr.film_id = :filmId " +
+                    "LIMIT :limit";
         }
-
-        return namedJdbc.query(sqlQuery, filmReviewRowMapper);
+        log.info("Возразаем список отзывов");
+        return namedJdbc.query(sqlQuery, params, filmReviewRowMapper);
     }
 
     @Override
     public FilmReview create(FilmReview filmReview) {
+        if (userDbStorage.findUserById(filmReview.getUserId()).isEmpty()) {
+            throw new NotFoundException("Пользователь с id = " + filmReview.getUserId() + " не найден");
+        }
+
+        if (filmDbStorage.findFilmById(filmReview.getFilmId()).isEmpty()) {
+            throw new NotFoundException("Фильм с id = " + filmReview.getFilmId() + " не найден");
+        }
+
+        log.info("Начало создания отзыва - " + filmReview);
         final String sqlQuery = "INSERT INTO film_reviews(content, is_positive, film_id, user_id) " +
                 "VALUES (:content, :isPositive, :filmId, :userId)";
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("content", filmReview.getContent())
-                .addValue("isPositive", filmReview.isPositive())
+                .addValue("isPositive", filmReview.getIsPositive())
                 .addValue("filmId", filmReview.getFilmId())
                 .addValue("userId", filmReview.getUserId());
-        namedJdbc.update(sqlQuery, params, keyHolder, new String[]{"id"});
+        namedJdbc.update(sqlQuery, params, keyHolder, new String[]{"reviewId"});
 
         Long id = keyHolder.getKeyAs(Long.class);
 
@@ -92,14 +102,16 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
             throw new InternalServerException("Не удалось сохранить данные");
         }
 
-        filmReview.setId(id);
+        filmReview.setReviewId(id);
+        log.info("Создания отзыва - завершено");
         return filmReview;
     }
 
     @Override
     public FilmReview update(FilmReview filmReview) {
-        if (getById(filmReview.getId()).isEmpty()) {
-            throw new NotFoundException("Отзыв с id = " + filmReview.getId() + " не найден");
+        log.info("Начало обновления отзыва - " + filmReview);
+        if (getById(filmReview.getReviewId()).isEmpty()) {
+            throw new NotFoundException("Отзыв с id = " + filmReview.getReviewId() + " не найден");
         }
 
         if (userDbStorage.findUserById(filmReview.getUserId()).isEmpty()) {
@@ -112,11 +124,12 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
 
         final String sqlQuery = "UPDATE film_reviews " +
                 "SET content = :content, is_positive = :isPositive, film_id = :filmId, user_id = :userId " +
-                "WHERE id = :id";
+                "WHERE reviewId = :id";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", filmReview.getReviewId())
                 .addValue("content", filmReview.getContent())
-                .addValue("isPositive", filmReview.isPositive())
+                .addValue("isPositive", filmReview.getIsPositive())
                 .addValue("filmId", filmReview.getFilmId())
                 .addValue("userId", filmReview.getUserId());
 
@@ -125,7 +138,7 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
         if (rowsUpdated == 0) {
             throw new InternalServerException("Не удалось обновить данные");
         }
-
+        log.info("завершилось обновления отзыва - " + filmReview);
         return filmReview;
     }
 
@@ -138,7 +151,8 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
-        String sqlQuery = "DELETE FROM film_reviews where id = :id";
+        String sqlQuery = "DELETE FROM film_reviews where reviewId = :id";
+        log.info("Удаляем отзыва");
         namedJdbc.update(sqlQuery, params);
     }
 
@@ -151,13 +165,18 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
         if (userDbStorage.findUserById(userId).isEmpty()) {
             throw new NotFoundException("Пользователь с id = " + userId + " не найден");
         }
-
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         params.addValue("userId", userId);
+
+        String sqlQueryDelete = "DELETE FROM film_review_ratings " +
+                "WHERE film_review_id = :id AND user_id = :userId";
+        namedJdbc.update(sqlQueryDelete, params);
+
+        log.info("Добавляем лайк/дизлайк для отзыва - " + like);
         params.addValue("like", like);
 
-        String sqlQuery = "INSERT INTO film_review_ratings (film_review_id, user_id, is_usefull) " +
+        String sqlQuery = "INSERT INTO film_review_ratings (film_review_id, user_id, is_useful) " +
                 "VALUES (:id, :userId, :like)";
         namedJdbc.update(sqlQuery, params);
     }
@@ -177,8 +196,9 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
         params.addValue("userId", userId);
         params.addValue("like", like);
 
+        log.info("Удаляем лайк/дизлайк для отзыва - " + like);
         String sqlQuery = "DELETE FROM film_review_ratings " +
-                "WHERE film_review_id = :id AND user_id = :userId AND is_usefull = :like";
+                "WHERE film_review_id = :id AND user_id = :userId AND is_useful = :like";
         namedJdbc.update(sqlQuery, params);
     }
 }

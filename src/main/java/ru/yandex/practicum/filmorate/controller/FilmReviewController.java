@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.FilmReview;
@@ -15,19 +16,19 @@ public class FilmReviewController {
 
   @GetMapping
   public Collection<FilmReview> findAll(
-          @RequestParam(name = "id", required = false) Long filmId,
+          @RequestParam(name = "filmId", required = false) Long filmId,
           @RequestParam(name = "count", defaultValue = "10") int count
   ) {
     return filmReviewService.findAll(filmId, count);
   }
 
   @GetMapping("/{id}")
-  public Optional<FilmReview> findById(@PathVariable long id) {
+  public FilmReview findById(@PathVariable long id) {
     return filmReviewService.findById(id);
   }
 
   @PostMapping
-  public FilmReview create(@RequestBody FilmReview filmReview) {
+  public FilmReview create(@Valid @RequestBody FilmReview filmReview) {
     return filmReviewService.create(filmReview);
   }
 
@@ -58,6 +59,6 @@ public class FilmReviewController {
 
   @DeleteMapping("/{id}/dislike/{userId}")
   public void deleteDislike(@PathVariable long id, @PathVariable long userId) {
-    filmReviewService.addLikeOrDislike(id, userId, true);
+    filmReviewService.deleteLikeOrDislike(id, userId, false);
   }
 }

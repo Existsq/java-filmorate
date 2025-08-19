@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.FilmReview;
 import ru.yandex.practicum.filmorate.storage.review.FilmReviewStorage;
 
@@ -21,9 +22,9 @@ public class FilmReviewService {
     return filmReviewStorage.findAll(filmId, count);
   }
 
-  public Optional<FilmReview> findById(Long id) {
+  public FilmReview findById(Long id) {
     return filmReviewStorage
-        .getById(id);
+        .getById(id).orElseThrow(() -> new NotFoundException("Отзыв с id " + id + " не найден"));
   }
 
   public FilmReview create(FilmReview filmReview) {
