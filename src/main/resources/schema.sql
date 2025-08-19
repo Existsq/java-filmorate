@@ -67,7 +67,16 @@ CREATE TABLE IF NOT EXISTS film_reviews
     is_positive BOOLEAN,
     film_id  INTEGER,
     user_id INTEGER,
-    usefull INTEGER DEFAULT 0,
-    FOREIGN KEY (film_id) REFERENCES films (id),
-    FOREIGN KEY (user_id) REFERENCES users (id)
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS film_review_ratings
+(
+    film_review_id INTEGER,
+    user_id INTEGER,
+    is_usefull BOOLEAN,
+    FOREIGN KEY (film_review_id) REFERENCES film_reviews (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (film_review_id, user_id)
 );
