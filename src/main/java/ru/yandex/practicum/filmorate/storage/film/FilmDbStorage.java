@@ -190,10 +190,8 @@ public class FilmDbStorage implements FilmStorage {
 
     if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
       Set<Long> directorIdsSet = new HashSet<>();
-      List<Long> uniqueDirectorIds = film.getDirectors().stream()
-          .map(Director::id)
-          .filter(directorIdsSet::add)
-          .toList();
+      List<Long> uniqueDirectorIds =
+          film.getDirectors().stream().map(Director::id).filter(directorIdsSet::add).toList();
 
       String sql = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
       jdbcTemplate.batchUpdate(
@@ -204,12 +202,45 @@ public class FilmDbStorage implements FilmStorage {
               ps.setLong(1, film.getId());
               ps.setLong(2, uniqueDirectorIds.get(i));
             }
+
             @Override
             public int getBatchSize() {
               return uniqueDirectorIds.size();
             }
           });
     }
+  }
+
+  @Override
+  public List<Film> findByDirector(Long directorId, String sortBy) {
+    String orderBy;
+    switch (sortBy.toLowerCase()) {
+      case "likes" -> orderBy = "COUNT(DISTINCT l.user_id) DESC";
+      case "year" -> orderBy = "f.release_date";
+      default -> throw new IllegalArgumentException("Invalid sortBy: " + sortBy);
+    }
+
+    String sql =
+        """
+        SELECT f.*, m.name AS mpa_name
+        FROM films f
+        JOIN mpa_ratings m ON f.mpa_id = m.id
+        JOIN film_directors fd ON f.id = fd.film_id
+        LEFT JOIN likes l ON f.id = l.film_id
+        WHERE fd.director_id = ?
+        GROUP BY f.id, m.name
+        ORDER BY
+        """
+            + orderBy;
+
+    List<Film> films = jdbcTemplate.query(sql, new FilmRowMapper(), directorId);
+
+    for (Film film : films) {
+      film.setGenres(getGenresForFilm(film.getId()));
+      film.setDirectors(getDirectorsForFilm(film.getId()));
+    }
+
+    return films;
   }
 
   private List<Genre> getGenresForFilm(Long filmId) {

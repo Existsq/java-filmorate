@@ -78,6 +78,13 @@ public class ErrorHandler {
     return new ErrorResponse(e.getMessage());
   }
 
+  @ResponseStatus(BAD_REQUEST)
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ErrorResponse handleIllegalArgument(final IllegalArgumentException e) {
+    log.error("Указан некорректный параметр: {}", e.getMessage());
+    return new ErrorResponse(e.getMessage());
+  }
+
   @ResponseStatus(NOT_FOUND)
   @ExceptionHandler(NotFoundException.class)
   public ErrorResponse handleNotFound(final NotFoundException e) {

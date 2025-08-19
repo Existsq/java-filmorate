@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.DirectorRowMapper;
 import ru.yandex.practicum.filmorate.model.Director;
 
@@ -46,7 +47,7 @@ public class DirectorDbStorage implements DirectorStorage {
     int updated = jdbcTemplate.update(sql, director.name(), director.id());
 
     if (updated == 0) {
-      throw new RuntimeException("Режиссер с id=" + director.id() + " не найден");
+      throw new NotFoundException("Режиссер с id=" + director.id() + " не найден");
     }
 
     log.info("Обновлен режиссер {} с id={}", director.name(), director.id());

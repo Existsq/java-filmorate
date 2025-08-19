@@ -70,4 +70,8 @@ public class FilmService {
     log.debug("Топ {} популярных фильмов: {}", count, topFilms);
     return topFilms;
   }
+
+  public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+    return filmStorage.findByDirector(directorId, sortBy);
+  }
 }
