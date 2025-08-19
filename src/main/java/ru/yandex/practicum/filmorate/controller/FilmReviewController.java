@@ -15,7 +15,7 @@ public class FilmReviewController {
 
   @GetMapping
   public Collection<FilmReview> findAll(
-          @RequestParam(name = "id", required = false) Long filmId,
+          @RequestParam(name = "filmId", required = false) Long filmId,
           @RequestParam(name = "count", defaultValue = "10") int count
   ) {
     return filmReviewService.findAll(filmId, count);
@@ -58,6 +58,6 @@ public class FilmReviewController {
 
   @DeleteMapping("/{id}/dislike/{userId}")
   public void deleteDislike(@PathVariable long id, @PathVariable long userId) {
-    filmReviewService.addLikeOrDislike(id, userId, true);
+    filmReviewService.deleteLikeOrDislike(id, userId, false);
   }
 }

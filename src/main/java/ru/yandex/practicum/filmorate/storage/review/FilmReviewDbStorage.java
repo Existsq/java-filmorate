@@ -32,7 +32,7 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
         String sqlQuery = "SELECT fr.id, fr.content, fr.is_positive, fr.film_id, fr.user_id, IFNULL(ratings.diff, 0) AS usefull " +
                 "FROM film_reviews fr " +
                 "LEFT JOIN (" +
-                    "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_positive THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_positive THEN 1 ELSE 0 END) AS diff " +
+                    "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_usefull THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_usefull THEN 1 ELSE 0 END) AS diff " +
                     "FROM film_review_ratings frr " +
                     "GROUP BY frr.film_review_id" +
                 ") AS ratings ON fr.id = ratings.film_review_id " +
@@ -49,33 +49,34 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
         String sqlQuery = "SELECT fr.id, fr.content, fr.is_positive, fr.film_id, fr.user_id, IFNULL(ratings.diff, 0) AS usefull " +
                 "FROM film_reviews fr " +
                 "LEFT JOIN (" +
-                "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_positive THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_positive THEN 1 ELSE 0 END) AS diff " +
+                "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_usefull THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_usefull THEN 1 ELSE 0 END) AS diff " +
                 "FROM film_review_ratings frr " +
                 "GROUP BY frr.film_review_id" +
                 ") AS ratings ON fr.id = ratings.film_review_id " +
-                "limit :limit";
+                "LIMIT :limit";
 
         if (filmId != null) {
             if (filmDbStorage.findFilmById(filmId).isEmpty()) {
                 throw new NotFoundException("Фильм с id = " + filmId + " не найден");
             }
-            params.addValue("film_id", filmId);
+            params.addValue("filmId", filmId);
             sqlQuery = "SELECT fr.id, fr.content, fr.is_positive, fr.film_id, fr.user_id, IFNULL(ratings.diff, 0) AS usefull " +
                     "FROM film_reviews fr " +
                     "LEFT JOIN (" +
-                    "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_positive THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_positive THEN 1 ELSE 0 END) AS diff " +
+                    "SELECT frr.film_review_id, SUM(CASE WHEN frr.is_usefull THEN 1 ELSE 0 END) - SUM(CASE WHEN NOT frr.is_usefull THEN 1 ELSE 0 END) AS diff " +
                     "FROM film_review_ratings frr " +
                     "GROUP BY frr.film_review_id" +
                     ") AS ratings ON fr.id = ratings.film_review_id " +
-                    "WHERE fr.film_id = :film_id " +
-                    "limit :limit";
+                    "WHERE fr.film_id = :filmId " +
+                    "LIMIT :limit";
         }
 
-        return namedJdbc.query(sqlQuery, filmReviewRowMapper);
+        return namedJdbc.query(sqlQuery, params, filmReviewRowMapper);
     }
 
     @Override
     public FilmReview create(FilmReview filmReview) {
+        log.info("asdasd - " + filmReview);
         final String sqlQuery = "INSERT INTO film_reviews(content, is_positive, film_id, user_id) " +
                 "VALUES (:content, :isPositive, :filmId, :userId)";
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -115,6 +116,7 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
                 "WHERE id = :id";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", filmReview.getId())
                 .addValue("content", filmReview.getContent())
                 .addValue("isPositive", filmReview.isPositive())
                 .addValue("filmId", filmReview.getFilmId())

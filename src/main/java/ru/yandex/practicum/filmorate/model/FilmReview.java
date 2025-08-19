@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ public class FilmReview {
     private long id;
     @NotBlank(message = "Комментарий не может быть пустым")
     private String content;
+    @JsonProperty("isPositive")
     private boolean isPositive;
     private long filmId;
     private long userId;
