@@ -26,6 +26,14 @@ public class FilmReviewService {
         .getById(id);
   }
 
+  public FilmReview create(FilmReview filmReview) {
+    return filmReviewStorage.create(filmReview);
+  }
+
+  public FilmReview update(FilmReview filmReview) {
+    return filmReviewStorage.update(filmReview);
+  }
+
   public void delete(long id) {
     filmReviewStorage.delete(id);
   }

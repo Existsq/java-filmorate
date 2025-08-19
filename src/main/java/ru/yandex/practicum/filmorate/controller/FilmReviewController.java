@@ -26,6 +26,16 @@ public class FilmReviewController {
     return filmReviewService.findById(id);
   }
 
+  @PostMapping
+  public FilmReview create(@RequestBody FilmReview filmReview) {
+    return filmReviewService.create(filmReview);
+  }
+
+  @PutMapping
+  public FilmReview update(@RequestBody FilmReview filmReview) {
+    return filmReviewService.update(filmReview);
+  }
+
   @DeleteMapping("/{id}")
   public void delete(@PathVariable long id) {
     filmReviewService.delete(id);

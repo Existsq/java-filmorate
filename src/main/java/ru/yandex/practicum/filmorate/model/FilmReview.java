@@ -14,8 +14,8 @@ public class FilmReview {
     private long id;
     @NotBlank(message = "Комментарий не может быть пустым")
     private String content;
-    private boolean is_positive;
-    private long film_id;
-    private long user_id;
+    private boolean isPositive;
+    private long filmId;
+    private long userId;
     private int usefull;
 }

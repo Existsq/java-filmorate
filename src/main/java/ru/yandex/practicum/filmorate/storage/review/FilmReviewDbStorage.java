@@ -4,13 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mappers.FilmReviewRowMapper;
 import ru.yandex.practicum.filmorate.model.FilmReview;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
-
 import java.util.Collection;
 import java.util.Optional;
 
@@ -75,12 +76,57 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
 
     @Override
     public FilmReview create(FilmReview filmReview) {
-        return null;
+        final String sqlQuery = "INSERT INTO film_reviews(content, is_positive, film_id, user_id) " +
+                "VALUES (:content, :isPositive, :filmId, :userId)";
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("content", filmReview.getContent())
+                .addValue("isPositive", filmReview.isPositive())
+                .addValue("filmId", filmReview.getFilmId())
+                .addValue("userId", filmReview.getUserId());
+        namedJdbc.update(sqlQuery, params, keyHolder, new String[]{"id"});
+
+        Long id = keyHolder.getKeyAs(Long.class);
+
+        if (id == null) {
+            throw new InternalServerException("Не удалось сохранить данные");
+        }
+
+        filmReview.setId(id);
+        return filmReview;
     }
 
     @Override
     public FilmReview update(FilmReview filmReview) {
-        return null;
+        if (getById(filmReview.getId()).isEmpty()) {
+            throw new NotFoundException("Отзыв с id = " + filmReview.getId() + " не найден");
+        }
+
+        if (userDbStorage.findUserById(filmReview.getUserId()).isEmpty()) {
+            throw new NotFoundException("Пользователь с id = " + filmReview.getUserId() + " не найден");
+        }
+
+        if (filmDbStorage.findFilmById(filmReview.getFilmId()).isEmpty()) {
+            throw new NotFoundException("Фильм с id = " + filmReview.getFilmId() + " не найден");
+        }
+
+        final String sqlQuery = "UPDATE film_reviews " +
+                "SET content = :content, is_positive = :isPositive, film_id = :filmId, user_id = :userId " +
+                "WHERE id = :id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("content", filmReview.getContent())
+                .addValue("isPositive", filmReview.isPositive())
+                .addValue("filmId", filmReview.getFilmId())
+                .addValue("userId", filmReview.getUserId());
+
+        int rowsUpdated = namedJdbc.update(sqlQuery, params);
+
+        if (rowsUpdated == 0) {
+            throw new InternalServerException("Не удалось обновить данные");
+        }
+
+        return filmReview;
     }
 
     @Override
