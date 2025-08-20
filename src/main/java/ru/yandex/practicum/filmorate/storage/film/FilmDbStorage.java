@@ -149,6 +149,13 @@ public class FilmDbStorage implements FilmStorage {
     return films;
   }
 
+  @Override
+  public void delete(Long filmId) {
+    String sql = "DELETE FROM films WHERE id = ?";
+    jdbcTemplate.update(sql, filmId);
+    log.info("Фильм {} удален", filmId);
+  }
+
   private void updateFilmGenres(Film film) {
     // Сначала очищаем старые связи
     jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", film.getId());

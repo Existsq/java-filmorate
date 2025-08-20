@@ -56,4 +56,9 @@ public class UserController {
     Set<Long> commonFriendIds = userService.getCommonFriends(id, otherId);
     return commonFriendIds.stream().map(userService::findById).collect(Collectors.toSet());
   }
+
+  @DeleteMapping("/{id}")
+  public void delete(@PathVariable Long id) {
+    userService.delete(id);
+  }
 }

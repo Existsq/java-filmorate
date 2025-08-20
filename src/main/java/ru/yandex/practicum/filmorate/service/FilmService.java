@@ -70,4 +70,8 @@ public class FilmService {
     log.debug("Топ {} популярных фильмов: {}", count, topFilms);
     return topFilms;
   }
+
+  public void delete(Long filmId) {
+    filmStorage.delete(filmId);
+  }
 }

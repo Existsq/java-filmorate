@@ -61,6 +61,10 @@ public class UserService {
     return commonFriends;
   }
 
+  public void delete(Long userId) {
+    userStorage.delete(userId);
+  }
+
   private void validateUsers(Long userId, Long friendId) {
     if (userId.equals(friendId)) {
       throw new IllegalArgumentException("Нельзя добавить в друзья самого себя");
@@ -70,7 +74,7 @@ public class UserService {
   }
 
   public void validateUserExists(Long userId) {
-    if (!userStorage.findUserById(userId).isPresent()) {
+    if (userStorage.findUserById(userId).isEmpty()) {
       throw new NotFoundException("Пользователь с id " + userId + " не найден");
     }
   }
