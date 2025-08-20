@@ -207,7 +207,7 @@ public class FilmDbStorage implements FilmStorage {
               Collections.nCopies(similarUserIds.size(), "?"));
 
       String sql = String.format("""
-          SELECT f.*, m.name AS mpa_name, 
+          SELECT f.*, m.name AS mpa_name,
                  COUNT(l.user_id) AS similarity_score
           FROM films f
           JOIN mpa_ratings m ON f.mpa_id = m.id
