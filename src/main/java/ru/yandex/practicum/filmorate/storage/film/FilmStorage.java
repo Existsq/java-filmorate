@@ -24,4 +24,6 @@ public interface FilmStorage {
   List<Film> findTopFilms(int count);
 
   List<Film> findByDirector(Long directorId, String sortBy);
+
+  void delete(Long filmId);
 }

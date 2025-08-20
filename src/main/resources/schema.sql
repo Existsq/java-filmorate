@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS film_genres
     film_id  BIGINT,
     genre_id BIGINT,
     PRIMARY KEY (film_id, genre_id),
-    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films (id)  ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genres (id)
 );
 
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS likes
     film_id BIGINT,
     PRIMARY KEY (user_id, film_id),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE
+    FOREIGN KEY (film_id) REFERENCES films (id)  ON DELETE CASCADE
 );
 
 CREATE TYPE IF NOT EXISTS status AS ENUM ('CONFIRMED', 'WAITING', 'REJECTED');
