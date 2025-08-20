@@ -32,7 +32,7 @@ public class FilmReviewController {
   }
 
   @PutMapping
-  public FilmReview update(@RequestBody FilmReview filmReview) {
+  public FilmReview update(@Valid @RequestBody FilmReview filmReview) {
     return filmReviewService.update(filmReview);
   }
 

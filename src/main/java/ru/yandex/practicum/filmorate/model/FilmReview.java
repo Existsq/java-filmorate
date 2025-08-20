@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FilmReview {
-    private long reviewId;
+    @JsonProperty("reviewId")
+    private long id;
     @NotBlank(message = "Комментарий не может быть пустым")
     @Size(max = 500)
     private String content;

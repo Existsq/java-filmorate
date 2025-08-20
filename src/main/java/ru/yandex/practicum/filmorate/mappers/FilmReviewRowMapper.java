@@ -13,7 +13,7 @@ public class FilmReviewRowMapper implements RowMapper<FilmReview> {
   @Override
   public FilmReview mapRow(ResultSet rs, int rowNum) throws SQLException {
     return FilmReview.builder()
-        .reviewId(rs.getLong("reviewId"))
+        .id(rs.getLong("id"))
         .content(rs.getString("content"))
         .isPositive(rs.getBoolean("is_positive"))
         .userId(rs.getLong("user_id"))
