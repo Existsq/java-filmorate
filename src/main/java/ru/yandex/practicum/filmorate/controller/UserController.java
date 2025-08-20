@@ -61,6 +61,11 @@ public class UserController {
     return commonFriendIds.stream().map(userService::findById).collect(Collectors.toSet());
   }
 
+  @DeleteMapping("/{id}")
+  public void delete(@PathVariable Long id) {
+    userService.delete(id);
+  }
+
   @GetMapping("/{id}/recommendations")
   public List<Film> getRecommendations(@PathVariable Long id) {
     return filmService.getRecommendations(id);

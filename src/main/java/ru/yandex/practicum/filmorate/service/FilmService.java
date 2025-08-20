@@ -77,6 +77,14 @@ public class FilmService {
     return topFilms;
   }
 
+  public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+    return filmStorage.findByDirector(directorId, sortBy);
+  }
+
+  public void delete(Long filmId) {
+    filmStorage.delete(filmId);
+  }
+
   public List<Film> getRecommendations(Long userId) {
       log.info("Формирование рекомендаций для пользователя {}", userId);
       userService.validateUserExists(userId);
