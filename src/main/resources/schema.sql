@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS film_directors
     film_id     BIGINT,
     director_id BIGINT,
     PRIMARY KEY (film_id, director_id),
-    FOREIGN KEY (film_id) REFERENCES films (id),
-    FOREIGN KEY (director_id) REFERENCES directors (id)
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (director_id) REFERENCES directors (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS film_genres
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS film_genres
     film_id  BIGINT,
     genre_id BIGINT,
     PRIMARY KEY (film_id, genre_id),
-    FOREIGN KEY (film_id) REFERENCES films (id),
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genres (id)
 );
 
@@ -59,8 +59,8 @@ CREATE TABLE IF NOT EXISTS likes
     user_id BIGINT,
     film_id BIGINT,
     PRIMARY KEY (user_id, film_id),
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (film_id) REFERENCES films (id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE
 );
 
 CREATE TYPE IF NOT EXISTS status AS ENUM ('CONFIRMED', 'WAITING', 'REJECTED');
@@ -71,6 +71,6 @@ CREATE TABLE IF NOT EXISTS friendships
     friend_id         BIGINT,
     friendship_status status,
     PRIMARY KEY (user_id, friend_id),
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (friend_id) REFERENCES users (id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (friend_id) REFERENCES users (id) ON DELETE CASCADE
 );
