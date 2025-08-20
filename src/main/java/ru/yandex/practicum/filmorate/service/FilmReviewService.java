@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.FilmReview;
 import ru.yandex.practicum.filmorate.storage.review.FilmReviewStorage;
-
 import java.util.Collection;
-import java.util.Optional;
 
 @Slf4j
 @Service

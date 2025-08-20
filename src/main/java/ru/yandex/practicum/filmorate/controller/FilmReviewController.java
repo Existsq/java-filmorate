@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.FilmReview;
 import ru.yandex.practicum.filmorate.service.FilmReviewService;
 import java.util.Collection;
-import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
