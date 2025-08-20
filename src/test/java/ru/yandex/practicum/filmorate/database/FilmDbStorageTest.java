@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
@@ -35,7 +36,8 @@ class FilmDbStorageTest {
             LocalDate.of(2020, 1, 1),
             120,
             new MPA(1L, "G"),
-            List.of(new Genre(1L, "Comedy")));
+            List.of(new Genre(1L, "Комедия")),
+            List.of(new Director(1L, "Director 1")));
   }
 
   @Test
@@ -95,6 +97,7 @@ class FilmDbStorageTest {
                 LocalDate.of(2021, 1, 1),
                 100,
                 new MPA(1L, "G"),
+                List.of(),
                 List.of()));
     filmStorage.addLike(film2.getId(), 1L);
 

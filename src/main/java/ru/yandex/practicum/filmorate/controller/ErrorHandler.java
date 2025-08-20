@@ -23,7 +23,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
       UserController.class,
       MpaController.class,
       GenresController.class,
-      FilmReviewController.class
+      FilmReviewController.class,
+      DirectorController.class
     })
 public class ErrorHandler {
 
@@ -75,6 +76,13 @@ public class ErrorHandler {
   @ExceptionHandler(DuplicateFriendshipException.class)
   public ErrorResponse handleDuplicateFriendship(final DuplicateFriendshipException e) {
     log.error("Возникла ошибка дублирования дружбы: {}", e.getMessage());
+    return new ErrorResponse(e.getMessage());
+  }
+
+  @ResponseStatus(BAD_REQUEST)
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ErrorResponse handleIllegalArgument(final IllegalArgumentException e) {
+    log.error("Указан некорректный параметр: {}", e.getMessage());
     return new ErrorResponse(e.getMessage());
   }
 
