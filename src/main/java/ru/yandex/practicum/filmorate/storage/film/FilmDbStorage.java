@@ -189,4 +189,48 @@ public class FilmDbStorage implements FilmStorage {
             """;
     return jdbcTemplate.query(sql, new GenreRowMapper(), filmId);
   }
+
+  @Override
+  public Set<Long> getLikedFilmIds(Long userId) {
+      String sql = "SELECT film_id FROM likes WHERE user_id = ?";
+      List<Long> filmIds = jdbcTemplate.queryForList(sql, Long.class, userId);
+      return new HashSet<>(filmIds);
+  }
+
+  @Override
+  public List<Film> getRecommendedFilms(Set<Long> similarUserIds, Long userId) {
+      if (similarUserIds.isEmpty()) {
+          return Collections.emptyList();
+      }
+
+      String placeholders = String.join(",",
+              Collections.nCopies(similarUserIds.size(), "?"));
+
+      String sql = String.format("""
+          SELECT f.*, m.name AS mpa_name, 
+                 COUNT(l.user_id) AS similarity_score
+          FROM films f
+          JOIN mpa_ratings m ON f.mpa_id = m.id
+          LEFT JOIN likes l ON f.id = l.film_id AND l.user_id IN (%s)
+          WHERE f.id IN (SELECT film_id FROM likes WHERE user_id IN (%s))
+          AND f.id NOT IN (SELECT film_id FROM likes WHERE user_id = ?)
+          GROUP BY f.id, m.name
+          ORDER BY similarity_score DESC, f.id DESC
+          LIMIT 20
+          """, placeholders, placeholders);
+       // параметры для запроса
+      List<Object> params = new ArrayList<>();
+      params.addAll(similarUserIds); // Для LEFT JOIN
+      params.addAll(similarUserIds); // Для WHERE IN
+      params.add(userId);            // Для NOT IN
+
+      List<Film> films = jdbcTemplate.query(sql, new FilmRowMapper(), params.toArray());
+
+      for (Film film : films) {
+          film.setGenres(getGenresForFilm(film.getId()));
+      }
+
+      log.debug("Найдено {} рекомендованных фильмов", films.size());
+      return films;
+  }
 }

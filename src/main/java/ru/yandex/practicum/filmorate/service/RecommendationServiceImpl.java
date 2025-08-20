@@ -25,26 +25,29 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public Set<Long> findUsersWithSimilarTastes(Long userId) {
-        // Получаем все лайки текущего пользователя
+        log.debug("Поиск пользователей с похожими вкусами для пользователя {}", userId);
+
+        // все фильмы, которые лайкнул пользователь
         Set<Long> userLikes = getLikedFilmIds(userId);
 
         if (userLikes.isEmpty()) {
+            log.debug("У пользователя {} нет лайков", userId);
             return Collections.emptySet();
         }
 
-        // Находим пользователей, которые лайкнули хотя бы один общий фильм
+        // для каждого пользователя - количество общих лайков
         return userStorage.findAll().stream()
                 .filter(u -> !u.getId().equals(userId))
                 .collect(Collectors.toMap(
                         User::getId,
                         otherUser -> {
-                            Set<Long> otherLikes = getLikedFilmIds(otherUser.getId());
-                            Set<Long> intersection = new HashSet<>(otherLikes);
-                            intersection.retainAll(userLikes);
+                            Set<Long> otherLikes = getLikedFilmIds(otherUser.getId()); // лайки другого пользователя
+                            Set<Long> intersection = new HashSet<>(otherLikes); // пересечение лайков
+                            intersection.retainAll(userLikes); // остаются только общие
                             return (long) intersection.size();
                         }))
                 .entrySet().stream()
-                .filter(e -> e.getValue() > 0)
+                .filter(e -> e.getValue() > 0) // остаются только те, у кого есть общие лайки
                 .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
                 .limit(10)
                 .map(Map.Entry::getKey)
