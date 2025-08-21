@@ -3,9 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,7 +14,6 @@ import java.util.stream.Collectors;
 public class RecommendationServiceImpl implements RecommendationService {
 
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
 
     @Override
     public Set<Long> getLikedFilmIds(Long userId) {
@@ -25,30 +22,29 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public Set<Long> findUsersWithSimilarTastes(Long userId) {
-        log.debug("Поиск пользователей с похожими вкусами для пользователя {}", userId);
 
-        // все фильмы, которые лайкнул пользователь
-        Set<Long> userLikes = getLikedFilmIds(userId);
-
-        if (userLikes.isEmpty()) {
-            log.debug("У пользователя {} нет лайков", userId);
+        Set<Long> userLikedFilms = getLikedFilmIds(userId);
+        if (userLikedFilms.isEmpty()) {
             return Collections.emptySet();
         }
+        // все лайки всех пользователей
+        Map<Long, Set<Long>> allUserLikes = filmStorage.getAllUserLikes();
 
-        // для каждого пользователя - количество общих лайков
-        return userStorage.findAll().stream()
-                .filter(u -> !u.getId().equals(userId))
-                .collect(Collectors.toMap(
-                        User::getId,
-                        otherUser -> {
-                            Set<Long> otherLikes = getLikedFilmIds(otherUser.getId()); // лайки другого пользователя
-                            Set<Long> intersection = new HashSet<>(otherLikes); // пересечение лайков
-                            intersection.retainAll(userLikes); // остаются только общие
-                            return (long) intersection.size();
-                        }))
-                .entrySet().stream()
-                .filter(e -> e.getValue() > 0) // остаются только те, у кого есть общие лайки
-                .sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
+        allUserLikes.remove(userId);
+        // сходство для каждого пользователя
+        return allUserLikes.entrySet().stream()
+                .map(entry -> {
+                    Long otherUserId = entry.getKey();
+                    Set<Long> otherLikes = entry.getValue();
+
+                    // пересечение
+                    Set<Long> commonFilms = new HashSet<>(otherLikes);
+                    commonFilms.retainAll(userLikedFilms);
+
+                    return new AbstractMap.SimpleEntry<>(otherUserId, (long) commonFilms.size());
+                })
+                .filter(entry -> entry.getValue() > 0)
+                .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
                 .limit(10)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toCollection(LinkedHashSet::new));

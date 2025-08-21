@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -276,6 +274,21 @@ public class FilmDbStorage implements FilmStorage {
       String sql = "SELECT film_id FROM likes WHERE user_id = ?";
       List<Long> filmIds = jdbcTemplate.queryForList(sql, Long.class, userId);
       return new HashSet<>(filmIds);
+  }
+
+  @Override
+  public  Map<Long, Set<Long>> getAllUserLikes() {
+      String sql = "SELECT user_id, film_id FROM likes";
+
+      return jdbcTemplate.query(sql, (ResultSet rs) -> {
+          Map<Long, Set<Long>> userLikesMap = new HashMap<>();
+          while (rs.next()) {
+              Long userId = rs.getLong("user_id");
+              Long filmId = rs.getLong("film_id");
+              userLikesMap.computeIfAbsent(userId, k -> new HashSet<>()).add(filmId);
+          }
+          return userLikesMap;
+      });
   }
 
   @Override
