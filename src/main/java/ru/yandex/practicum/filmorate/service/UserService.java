@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import java.util.*;
+
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,8 +12,11 @@ public class UserService {
 
   private final UserStorage userStorage;
 
-  public UserService(UserStorage userStorage) {
+  private final UserFeedService userFeedService;
+
+  public UserService(UserStorage userStorage, UserFeedService userFeedService) {
     this.userStorage = userStorage;
+    this.userFeedService = userFeedService;
   }
 
   public Collection<User> findAll() {
@@ -21,8 +25,8 @@ public class UserService {
 
   public User findById(Long id) {
     return userStorage
-        .findUserById(id)
-        .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+            .findUserById(id)
+            .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
   }
 
   public User create(User user) {
@@ -39,11 +43,13 @@ public class UserService {
   public void addFriend(Long userId, Long friendId) {
     validateUsers(userId, friendId);
     userStorage.addFriendRequest(userId, friendId); // теперь это сразу добавление в друзья
+    userFeedService.addFriendEvent(userId, friendId, "ADD");
   }
 
   public void deleteFriend(Long userId, Long friendId) {
     validateUsers(userId, friendId);
     userStorage.deleteFriendship(userId, friendId);
+    userFeedService.addFriendEvent(userId, friendId, "REMOVE");
   }
 
   public Set<Long> getFriends(Long userId) {
