@@ -12,11 +12,8 @@ import java.util.Collection;
 public class FilmReviewService {
   private final FilmReviewStorage filmReviewStorage;
 
-  private final UserFeedService userFeedService;
-
-  public FilmReviewService(FilmReviewStorage filmReviewStorage, UserFeedService userFeedService) {
+  public FilmReviewService(FilmReviewStorage filmReviewStorage) {
     this.filmReviewStorage = filmReviewStorage;
-    this.userFeedService = userFeedService;
   }
 
   public Collection<FilmReview> findAll(Long filmId, int count) {
@@ -29,20 +26,14 @@ public class FilmReviewService {
   }
 
   public FilmReview create(FilmReview filmReview) {
-    FilmReview created = filmReviewStorage.create(filmReview);
-    userFeedService.addReviewEvent(created.getUserId(), created.getId(), "ADD");
-    return created;
+    return filmReviewStorage.create(filmReview);
   }
 
   public FilmReview update(FilmReview filmReview) {
-    FilmReview updated = filmReviewStorage.update(filmReview);
-    userFeedService.addReviewEvent(updated.getUserId(), updated.getId(), "UPDATE");
-    return updated;
+    return filmReviewStorage.update(filmReview);
   }
 
   public void delete(long id) {
-    FilmReview review = findById(id);
-    userFeedService.addReviewEvent(review.getUserId(), id, "REMOVE");
     filmReviewStorage.delete(id);
   }
 
