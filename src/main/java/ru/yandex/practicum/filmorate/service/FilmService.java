@@ -17,9 +17,12 @@ public class FilmService {
 
   private final UserService userService;
 
-  public FilmService(FilmStorage filmStorage, UserService userService) {
+  private final UserFeedService userFeedService;
+
+  public FilmService(FilmStorage filmStorage, UserService userService, UserFeedService userFeedService) {
     this.filmStorage = filmStorage;
     this.userService = userService;
+    this.userFeedService = userFeedService;
   }
 
   public Film create(Film film) {
@@ -55,6 +58,7 @@ public class FilmService {
     userService.validateUserExists(userId);
     findById(filmId);
     filmStorage.addLike(filmId, userId);
+    userFeedService.addLikeEvent(userId, filmId, "ADD");
     log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
   }
 
@@ -62,6 +66,7 @@ public class FilmService {
     userService.validateUserExists(userId);
     findById(filmId);
     filmStorage.removeLike(filmId, userId);
+    userFeedService.addLikeEvent(userId, filmId, "REMOVE");
     log.info("Пользователь {} удалил лайк с фильма {}", userId, filmId);
   }
 
