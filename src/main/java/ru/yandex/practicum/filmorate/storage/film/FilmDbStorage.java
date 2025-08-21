@@ -273,7 +273,7 @@ public class FilmDbStorage implements FilmStorage {
   }
 
   @Override
-  public List<Film> getCommonFilms(Long userId, Long friendId){
+  public List<Film> getCommonFilms(Long userId, Long friendId) {
     log.debug("Поиск общих фильмов для пользователей {} и {}", userId, friendId);
     String sql = """
         SELECT f.*, m.name AS mpa_name
