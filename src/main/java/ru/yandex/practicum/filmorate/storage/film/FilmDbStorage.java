@@ -276,18 +276,22 @@ public class FilmDbStorage implements FilmStorage {
   public List<Film> getCommonFilms(Long userId, Long friendId) {
     log.debug("Поиск общих фильмов для пользователей {} и {}", userId, friendId);
     String sql = """
-        SELECT f.*, m.name AS mpa_name
+        SELECT f.*, m.name AS mpa_name, lc.like_count
         FROM films f
         JOIN mpa_ratings m ON f.mpa_id = m.id
-        WHERE EXISTS (
-            SELECT 1 FROM likes l1 WHERE l1.film_id = f.id AND l1.user_id = ?
-        )
-        AND EXISTS (
-            SELECT 1 FROM likes l2 WHERE l2.film_id = f.id AND l2.user_id = ?
-        )
-        ORDER BY (
-            SELECT COUNT(*) FROM likes l3 WHERE l3.film_id = f.id
-        ) DESC
+        JOIN (
+            SELECT film_id
+            FROM likes
+            WHERE user_id IN (?, ?)
+            GROUP BY film_id
+            HAVING COUNT(DISTINCT user_id) = 2
+        ) cf ON f.id = cf.film_id
+        JOIN (
+            SELECT film_id, COUNT(*) as like_count
+            FROM likes
+            GROUP BY film_id
+        ) lc ON f.id = lc.film_id
+        ORDER BY lc.like_count DESC
         """;
     List<Film> films = jdbcTemplate.query(sql,new FilmRowMapper(), userId, friendId);
 
