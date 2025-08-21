@@ -24,8 +24,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
       MpaController.class,
       GenresController.class,
       FilmReviewController.class,
-      DirectorController.class,
-      UserFeedController.class
+      DirectorController.class
     })
 public class ErrorHandler {
 
