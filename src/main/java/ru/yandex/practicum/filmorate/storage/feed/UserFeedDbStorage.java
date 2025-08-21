@@ -21,7 +21,7 @@ public class UserFeedDbStorage implements UserFeedStorage {
 
   @Override
   public List<UserFeedEvent> getUserFeed(Long userId) {
-    String sql = "SELECT * FROM user_feeds WHERE user_id = ? ORDER BY timestamp DESC";
+    String sql = "SELECT * FROM user_feeds WHERE user_id = ? ORDER BY timestamp ASC";
     return jdbcTemplate.query(sql, rowMapper, userId);
   }
 
