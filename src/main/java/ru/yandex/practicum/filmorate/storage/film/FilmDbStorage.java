@@ -271,4 +271,31 @@ public class FilmDbStorage implements FilmStorage {
     return jdbcTemplate.query(
         sql, (rs, rowNum) -> new Director(rs.getLong("id"), rs.getString("name")), filmId);
   }
+
+  @Override
+  public List<Film> getCommonFilms(Long userId, Long friendId){
+    log.debug("Поиск общих фильмов для пользователей {} и {}", userId, friendId);
+    String sql = """
+        SELECT f.*, m.name AS mpa_name
+        FROM films f
+        JOIN mpa_ratings m ON f.mpa_id = m.id
+        WHERE EXISTS (
+            SELECT 1 FROM likes l1 WHERE l1.film_id = f.id AND l1.user_id = ?
+        )
+        AND EXISTS (
+            SELECT 1 FROM likes l2 WHERE l2.film_id = f.id AND l2.user_id = ?
+        )
+        ORDER BY (
+            SELECT COUNT(*) FROM likes l3 WHERE l3.film_id = f.id
+        ) DESC
+        """;
+    List<Film> films = jdbcTemplate.query(sql,new FilmRowMapper(), userId, friendId);
+
+    for (Film film : films) {
+        film.setGenres(getGenresForFilm(film.getId()));
+    }
+
+    log.debug("Найдено {} общих фильмов", films.size());
+    return films;
+  }
 }

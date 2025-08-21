@@ -78,4 +78,11 @@ public class FilmService {
   public void delete(Long filmId) {
     filmStorage.delete(filmId);
   }
+
+  public List<Film> getCommonFilms(Long userId, Long friendId) {
+      userService.validateUserExists(userId);
+      userService.validateUserExists(friendId);
+      log.info("Поиск общих фильмов пользователей {} и {}", userId, friendId);
+      return filmStorage.getCommonFilms(userId, friendId);
+  }
 }
