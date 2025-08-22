@@ -364,9 +364,11 @@ public class FilmDbStorage implements FilmStorage {
     String lowerQuery = "%" + query.toLowerCase() + "%";
 
     StringBuilder sql = new StringBuilder("""
-        SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.name AS mpa_name
+        SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.name AS mpa_name,
+               COUNT(DISTINCT l.user_id) AS like_count
         FROM films f
         JOIN mpa_ratings m ON f.mpa_id = m.id
+        LEFT JOIN likes l ON f.id = l.film_id
     """);
 
     if (byFields != null && byFields.contains("director")) {
@@ -385,7 +387,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     sql.append(" WHERE ").append(String.join(" OR ", conditions));
-    sql.append(" ORDER BY f.id ASC");
+    sql.append(" GROUP BY f.id, m.name");
+    sql.append(" ORDER BY like_count DESC, f.id ASC");
 
     List<Film> films = jdbcTemplate.query(sql.toString(), new FilmRowMapper(), params.toArray());
 
