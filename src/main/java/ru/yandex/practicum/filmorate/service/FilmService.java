@@ -85,15 +85,20 @@ public class FilmService {
     filmStorage.delete(filmId);
   }
 
-  public List<Film> getRecommendations(Long userId) {
-      log.info("Формирование рекомендаций для пользователя {}", userId);
+  public List<Film> getCommonFilms(Long userId, Long friendId) {
       userService.validateUserExists(userId);
+      userService.validateUserExists(friendId);
+      log.info("Поиск общих фильмов пользователей {} и {}", userId, friendId);
+      return filmStorage.getCommonFilms(userId, friendId);
+  }
 
-      Set<Long> similarUserIds = recommendationService.findUsersWithSimilarTastes(userId);
-
+  public List<Film> getRecommendations(Long userId) {
+    log.info("Формирование рекомендаций для пользователя {}", userId);
+    userService.validateUserExists(userId);
+    Set<Long> similarUserIds = recommendationService.findUsersWithSimilarTastes(userId);
       if (similarUserIds.isEmpty()) {
-          log.info("Для пользователя {} не найдено пользователей с похожими вкусами", userId);
-          return List.of();
+        log.info("Для пользователя {} не найдено пользователей с похожими вкусами", userId);
+        return List.of();
       }
 
       log.info("Для пользователя {} найдено {} похожих пользователей: {}",
