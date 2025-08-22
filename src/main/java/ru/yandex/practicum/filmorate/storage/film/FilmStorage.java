@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 import ru.yandex.practicum.filmorate.model.Film;
 
 public interface FilmStorage {
@@ -28,4 +27,10 @@ public interface FilmStorage {
   void delete(Long filmId);
 
   List<Film> getCommonFilms(Long userId, Long friendId);
+
+  Set<Long> getLikedFilmIds(Long userId);
+
+  List<Film> getRecommendedFilms(Set<Long> similarUserIds, Long userId);
+
+  Map<Long, Set<Long>> getAllUserLikes();
 }
