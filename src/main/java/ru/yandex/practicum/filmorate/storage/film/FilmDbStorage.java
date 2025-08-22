@@ -190,11 +190,6 @@ public class FilmDbStorage implements FilmStorage {
   }
 
   @Override
-  public List<Film> findTopFilms(int count) {
-    return findTopFilms(count, null, null);
-  }
-
-  @Override
   public void delete(Long filmId) {
     String sql = "DELETE FROM films WHERE id = ?";
     jdbcTemplate.update(sql, filmId);

@@ -66,12 +66,6 @@ public class FilmService {
     log.info("Пользователь {} удалил лайк с фильма {}", userId, filmId);
   }
 
-  public List<Film> getPopularByLikes(int count) {
-    List<Film> topFilms = filmStorage.findTopFilms(count);
-    log.debug("Топ {} популярных фильмов: {}", count, topFilms);
-    return topFilms;
-  }
-
   public List<Film> getPopularByLikes(int count, Integer genreId, Integer year) {
     if (count <= 0) {
       throw new ValidationException("Параметр count должен быть положительным числом");
