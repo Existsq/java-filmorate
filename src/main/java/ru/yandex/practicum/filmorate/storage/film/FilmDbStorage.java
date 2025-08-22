@@ -133,24 +133,65 @@ public class FilmDbStorage implements FilmStorage {
   }
 
   @Override
-  public List<Film> findTopFilms(int count) {
-    String sql =
-        """
+  public List<Film> findTopFilms(int count, Integer genreId, Integer year) {
+    StringBuilder sqlBuilder = new StringBuilder("""
         SELECT f.*, m.name AS mpa_name
         FROM films f
         JOIN mpa_ratings m ON f.mpa_id = m.id
         LEFT JOIN likes l ON f.id = l.film_id
+    """);
+
+    // Добавляем JOIN для фильтрации по жанру если нужно
+    if (genreId != null) {
+      sqlBuilder.append("""
+            JOIN film_genres fg ON f.id = fg.film_id AND fg.genre_id = ?
+        """);
+    }
+
+    sqlBuilder.append("""
+        WHERE 1=1
+    """);
+
+    // Добавляем фильтрацию по году если нужно
+    if (year != null) {
+      sqlBuilder.append("""
+            AND EXTRACT(YEAR FROM f.release_date) = ?
+        """);
+    }
+
+    sqlBuilder.append("""
         GROUP BY f.id, m.name
         ORDER BY COUNT(DISTINCT l.user_id) DESC, f.id DESC
         LIMIT ?
-        """;
+    """);
 
-    List<Film> films = jdbcTemplate.query(sql, new FilmRowMapper(), count);
+    String sql = sqlBuilder.toString();
+
+    // Подготавливаем параметры
+    List<Object> params = new ArrayList<>();
+    int paramIndex = 1;
+
+    if (genreId != null) {
+      params.add(genreId);
+    }
+    if (year != null) {
+      params.add(year);
+    }
+    params.add(count);
+
+    List<Film> films = jdbcTemplate.query(sql, new FilmRowMapper(), params.toArray());
+
     for (Film film : films) {
       film.setGenres(getGenresForFilm(film.getId()));
       film.setDirectors(getDirectorsForFilm(film.getId()));
     }
+
     return films;
+  }
+
+  @Override
+  public List<Film> findTopFilms(int count) {
+    return findTopFilms(count, null, null);
   }
 
   @Override
