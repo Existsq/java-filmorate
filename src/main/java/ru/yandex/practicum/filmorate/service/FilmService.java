@@ -93,14 +93,14 @@ public class FilmService {
   }
   
   public List<Film> getRecommendations(Long userId) {
-      log.info("Формирование рекомендаций для пользователя {}", userId);
-      userService.validateUserExists(userId);
-
-      Set<Long> similarUserIds = recommendationService.findUsersWithSimilarTastes(userId);
-
+    log.info("Формирование рекомендаций для пользователя {}", userId);
+    userService.validateUserExists(userId);
+    
+    Set<Long> similarUserIds = recommendationService.findUsersWithSimilarTastes(userId);
+    
       if (similarUserIds.isEmpty()) {
-          log.info("Для пользователя {} не найдено пользователей с похожими вкусами", userId);
-          return List.of();
+        log.info("Для пользователя {} не найдено пользователей с похожими вкусами", userId);
+        return List.of();
       }
 
       log.info("Для пользователя {} найдено {} похожих пользователей: {}",
