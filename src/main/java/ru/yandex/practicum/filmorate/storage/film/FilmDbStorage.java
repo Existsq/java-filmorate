@@ -358,4 +358,45 @@ public class FilmDbStorage implements FilmStorage {
       log.debug("Найдено {} рекомендованных фильмов", films.size());
       return films;
   }
+
+  public Collection<Film> search(String query, Set<String> byFields) {
+    List<Object> params = new ArrayList<>();
+    String lowerQuery = "%" + query.toLowerCase() + "%";
+
+    StringBuilder sql = new StringBuilder("""
+        SELECT DISTINCT f.id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.name AS mpa_name,
+               COUNT(DISTINCT l.user_id) AS like_count
+        FROM films f
+        JOIN mpa_ratings m ON f.mpa_id = m.id
+        LEFT JOIN likes l ON f.id = l.film_id
+    """);
+
+    if (byFields != null && byFields.contains("director")) {
+      sql.append(" LEFT JOIN film_directors fd ON f.id = fd.film_id");
+      sql.append(" LEFT JOIN directors d ON fd.director_id = d.id");
+    }
+
+    List<String> conditions = new ArrayList<>();
+    if (byFields == null || byFields.isEmpty() || byFields.contains("title")) {
+      conditions.add("LOWER(f.name) LIKE ?");
+      params.add(lowerQuery);
+    }
+    if (byFields != null && byFields.contains("director")) {
+      conditions.add("LOWER(d.name) LIKE ?");
+      params.add(lowerQuery);
+    }
+
+    sql.append(" WHERE ").append(String.join(" OR ", conditions));
+    sql.append(" GROUP BY f.id, m.name");
+    sql.append(" ORDER BY like_count DESC, f.id ASC");
+
+    List<Film> films = jdbcTemplate.query(sql.toString(), new FilmRowMapper(), params.toArray());
+
+    for (Film film : films) {
+      film.setGenres(getGenresForFilm(film.getId()));
+      film.setDirectors(getDirectorsForFilm(film.getId()));
+    }
+
+    return films;
+  }
 }

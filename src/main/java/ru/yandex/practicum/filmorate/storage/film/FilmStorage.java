@@ -33,4 +33,6 @@ public interface FilmStorage {
   List<Film> getRecommendedFilms(Set<Long> similarUserIds, Long userId);
 
   Map<Long, Set<Long>> getAllUserLikes();
+
+  Collection<Film> search(String query, Set<String> byFields);
 }
