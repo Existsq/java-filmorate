@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -17,9 +19,13 @@ public class FilmService {
 
   private final UserService userService;
 
-  public FilmService(FilmStorage filmStorage, UserService userService) {
+  private final RecommendationService recommendationService;
+
+  public FilmService(FilmStorage filmStorage, UserService userService,
+                     RecommendationService recommendationService) {
     this.filmStorage = filmStorage;
     this.userService = userService;
+    this.recommendationService = recommendationService;
   }
 
   public Film create(Film film) {
@@ -77,5 +83,27 @@ public class FilmService {
 
   public void delete(Long filmId) {
     filmStorage.delete(filmId);
+  }
+
+  public List<Film> getRecommendations(Long userId) {
+      log.info("Формирование рекомендаций для пользователя {}", userId);
+      userService.validateUserExists(userId);
+
+      Set<Long> similarUserIds = recommendationService.findUsersWithSimilarTastes(userId);
+
+      if (similarUserIds.isEmpty()) {
+          log.info("Для пользователя {} не найдено пользователей с похожими вкусами", userId);
+          return List.of();
+      }
+
+      log.info("Для пользователя {} найдено {} похожих пользователей: {}",
+              userId, similarUserIds.size(), similarUserIds);
+
+      List<Film> recommendations = filmStorage.getRecommendedFilms(similarUserIds, userId);
+
+      log.info("Для пользователя {} сгенерировано {} рекомендаций",
+              userId, recommendations.size());
+
+      return recommendations;
   }
 }
