@@ -46,8 +46,9 @@ public class FilmDbStorage implements FilmStorage {
     Long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
     film.setId(id);
     updateFilmGenres(film);
+    updateFilmDirectors(film);
 
-    return findFilmById(id).orElseThrow(() -> new RuntimeException("Не удалось сохранить фильм"));
+    return film;
   }
 
   @Override
