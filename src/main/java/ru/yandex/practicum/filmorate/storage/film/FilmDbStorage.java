@@ -300,7 +300,7 @@ public class FilmDbStorage implements FilmStorage {
     log.debug("Найдено {} общих фильмов", films.size());
     return films;
   }
-}
+
   public Set<Long> getLikedFilmIds(Long userId) {
       String sql = "SELECT film_id FROM likes WHERE user_id = ?";
       List<Long> filmIds = jdbcTemplate.queryForList(sql, Long.class, userId);
