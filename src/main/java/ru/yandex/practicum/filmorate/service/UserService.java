@@ -11,8 +11,11 @@ public class UserService {
 
   private final UserStorage userStorage;
 
-  public UserService(UserStorage userStorage) {
+  private final UserFeedService userFeedService;
+
+  public UserService(UserStorage userStorage, UserFeedService userFeedService) {
     this.userStorage = userStorage;
+    this.userFeedService = userFeedService;
   }
 
   public Collection<User> findAll() {
@@ -39,11 +42,13 @@ public class UserService {
   public void addFriend(Long userId, Long friendId) {
     validateUsers(userId, friendId);
     userStorage.addFriendRequest(userId, friendId); // теперь это сразу добавление в друзья
+    userFeedService.addFriendEvent(userId, friendId, "ADD");
   }
 
   public void deleteFriend(Long userId, Long friendId) {
     validateUsers(userId, friendId);
     userStorage.deleteFriendship(userId, friendId);
+    userFeedService.addFriendEvent(userId, friendId, "REMOVE");
   }
 
   public Set<Long> getFriends(Long userId) {
