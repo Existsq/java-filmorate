@@ -77,7 +77,7 @@ public class FilmService {
       throw new ValidationException("Параметр count должен быть положительным числом");
     }
 
-    if (year != null && (year < 1900 || year > LocalDate.now().getYear())) {
+    if (year != null && (year < 1895 || year > LocalDate.now().getYear())) {
       throw new ValidationException("Год должен быть в диапазоне от 1895 до текущего года");
     }
 
