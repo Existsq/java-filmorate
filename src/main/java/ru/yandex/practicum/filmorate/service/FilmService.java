@@ -91,6 +91,7 @@ public class FilmService {
       log.info("Поиск общих фильмов пользователей {} и {}", userId, friendId);
       return filmStorage.getCommonFilms(userId, friendId);
   }
+  
   public List<Film> getRecommendations(Long userId) {
     log.info("Формирование рекомендаций для пользователя {}", userId);
     userService.validateUserExists(userId);
