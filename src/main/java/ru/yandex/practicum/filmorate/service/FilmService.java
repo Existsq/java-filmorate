@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -71,9 +72,21 @@ public class FilmService {
     log.info("Пользователь {} удалил лайк с фильма {}", userId, filmId);
   }
 
-  public List<Film> getPopularByLikes(int count) {
-    List<Film> topFilms = filmStorage.findTopFilms(count);
-    log.debug("Топ {} популярных фильмов: {}", count, topFilms);
+  public List<Film> getPopularByLikes(int count, Integer genreId, Integer year) {
+    if (count <= 0) {
+      throw new ValidationException("Параметр count должен быть положительным числом");
+    }
+
+    if (year != null && (year < 1895 || year > LocalDate.now().getYear())) {
+      throw new ValidationException("Год должен быть в диапазоне от 1895 до текущего года");
+    }
+
+    if (genreId != null && genreId <= 0) {
+      throw new ValidationException("ID жанра должен быть положительным числом");
+    }
+
+    List<Film> topFilms = filmStorage.findTopFilms(count, genreId, year);
+    log.debug("Топ {} популярных фильмов (жанр: {}, год: {}): {}", count, genreId, year, topFilms);
     return topFilms;
   }
 

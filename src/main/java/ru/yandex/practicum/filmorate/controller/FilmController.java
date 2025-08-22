@@ -52,14 +52,17 @@ public class FilmController {
     filmService.deleteLike(userId, id);
   }
 
-  @GetMapping("/popular")
-  public List<Film> getTopFilms(@RequestParam(defaultValue = "10") int count) {
-    return filmService.getPopularByLikes(count);
-  }
-
   @DeleteMapping("/{id}")
   public void delete(@PathVariable Long id) {
     filmService.delete(id);
+  }
+
+  @GetMapping("/popular")
+  public List<Film> getTopFilms(
+      @RequestParam(defaultValue = "10") int count,
+      @RequestParam(required = false) Integer genreId,
+      @RequestParam(required = false) Integer year) {
+    return filmService.getPopularByLikes(count, genreId, year);
   }
 
   @GetMapping("/director/{directorId}")
