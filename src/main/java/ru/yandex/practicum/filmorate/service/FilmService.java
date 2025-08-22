@@ -95,7 +95,6 @@ public class FilmService {
   public List<Film> getRecommendations(Long userId) {
     log.info("Формирование рекомендаций для пользователя {}", userId);
     userService.validateUserExists(userId);
-    
     Set<Long> similarUserIds = recommendationService.findUsersWithSimilarTastes(userId);
     
       if (similarUserIds.isEmpty()) {
