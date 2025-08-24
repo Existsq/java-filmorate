@@ -67,7 +67,7 @@ class FilmDbStorageTest {
   @Test
   void testDeleteFilm() {
     Film saved = filmStorage.save(testFilm);
-    filmStorage.deleteById(saved.getId());
+    filmStorage.delete(saved.getId());
     Optional<Film> found = filmStorage.findFilmById(saved.getId());
     assertThat(found).isEmpty();
   }
