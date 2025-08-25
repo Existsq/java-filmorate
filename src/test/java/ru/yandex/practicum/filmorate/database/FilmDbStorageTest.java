@@ -67,7 +67,7 @@ class FilmDbStorageTest {
   @Test
   void testDeleteFilm() {
     Film saved = filmStorage.save(testFilm);
-    filmStorage.deleteById(saved.getId());
+    filmStorage.delete(saved.getId());
     Optional<Film> found = filmStorage.findFilmById(saved.getId());
     assertThat(found).isEmpty();
   }
@@ -76,12 +76,12 @@ class FilmDbStorageTest {
   void testAddAndRemoveLike() {
     Film saved = filmStorage.save(testFilm);
     filmStorage.addLike(saved.getId(), 1L);
-    List<Film> topFilms = filmStorage.findTopFilms(1);
+    List<Film> topFilms = filmStorage.findTopFilms(1, null, null);
     assertThat(topFilms).hasSize(1);
     assertThat(topFilms.getFirst().getId()).isEqualTo(saved.getId());
 
     filmStorage.removeLike(saved.getId(), 1L);
-    topFilms = filmStorage.findTopFilms(1);
+    topFilms = filmStorage.findTopFilms(1, null, null);
     assertThat(topFilms).hasSize(1);
   }
 
@@ -101,7 +101,7 @@ class FilmDbStorageTest {
                 List.of()));
     filmStorage.addLike(film2.getId(), 1L);
 
-    List<Film> topFilms = filmStorage.findTopFilms(2);
+    List<Film> topFilms = filmStorage.findTopFilms(2, null, null);
     assertThat(topFilms.get(0).getId()).isEqualTo(film2.getId());
     assertThat(topFilms.get(1).getId()).isEqualTo(film1.getId());
   }

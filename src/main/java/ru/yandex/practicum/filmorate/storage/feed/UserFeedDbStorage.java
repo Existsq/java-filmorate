@@ -6,6 +6,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.mappers.UserFeedEventRowMapper;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.UserFeedEvent;
 
 import java.sql.PreparedStatement;
@@ -36,8 +38,8 @@ public class UserFeedDbStorage implements UserFeedStorage {
       PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
       ps.setLong(1, event.getUserId());
       ps.setLong(2, event.getEntityId());
-      ps.setString(3, event.getEventType());
-      ps.setString(4, event.getOperation());
+      ps.setString(3, event.getEventType().name());
+      ps.setString(4, event.getOperation().name());
       ps.setLong(5, event.getTimestamp());
       return ps;
     }, keyHolder);
@@ -48,38 +50,17 @@ public class UserFeedDbStorage implements UserFeedStorage {
   }
 
   @Override
-  public void addLikeEvent(Long userId, Long filmId, String operation) {
-    UserFeedEvent event = UserFeedEvent.builder()
-            .userId(userId)
-            .entityId(filmId)
-            .eventType("LIKE")
-            .operation(operation)
-            .timestamp(System.currentTimeMillis())
-            .build();
-    addEvent(event);
-  }
+  public void addEvent(Long userId, Long entityId, EventType eventType, OperationType operation) {
+    String sql = "INSERT INTO user_feeds (user_id, entity_id, event_type, operation, timestamp) " +
+            "VALUES (?, ?, ?, ?, ?)";
 
-  @Override
-  public void addReviewEvent(Long userId, Long reviewId, String operation) {
-    UserFeedEvent event = UserFeedEvent.builder()
-            .userId(userId)
-            .entityId(reviewId)
-            .eventType("REVIEW")
-            .operation(operation)
-            .timestamp(System.currentTimeMillis())
-            .build();
-    addEvent(event);
-  }
-
-  @Override
-  public void addFriendEvent(Long userId, Long friendId, String operation) {
-    UserFeedEvent event = UserFeedEvent.builder()
-            .userId(userId)
-            .entityId(friendId)
-            .eventType("FRIEND")
-            .operation(operation)
-            .timestamp(System.currentTimeMillis())
-            .build();
-    addEvent(event);
+    jdbcTemplate.update(
+            sql,
+            userId,
+            entityId,
+            eventType.name(),
+            operation.name(),
+            System.currentTimeMillis()
+    );
   }
 }

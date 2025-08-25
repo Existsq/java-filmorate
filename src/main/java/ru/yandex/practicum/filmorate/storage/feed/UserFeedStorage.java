@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.feed;
 
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.UserFeedEvent;
 
 import java.util.List;
@@ -9,9 +11,5 @@ public interface UserFeedStorage {
 
   void addEvent(UserFeedEvent event);
 
-  void addLikeEvent(Long userId, Long filmId, String operation);
-
-  void addReviewEvent(Long userId, Long reviewId, String operation);
-
-  void addFriendEvent(Long userId, Long friendId, String operation);
+  void addEvent(Long userId, Long entityId, EventType eventType, OperationType operation);
 }

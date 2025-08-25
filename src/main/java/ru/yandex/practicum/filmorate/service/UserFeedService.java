@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.UserFeedEvent;
 import ru.yandex.practicum.filmorate.storage.feed.UserFeedStorage;
 
@@ -17,15 +19,19 @@ public class UserFeedService {
     return userFeedStorage.getUserFeed(userId);
   }
 
-  public void addLikeEvent(Long userId, Long filmId, String operation) {
-    userFeedStorage.addLikeEvent(userId, filmId, operation);
+  public void addLikeEvent(Long userId, Long filmId, OperationType operation) {
+    userFeedStorage.addEvent(userId, filmId, EventType.LIKE, operation);
   }
 
-  public void addReviewEvent(Long userId, Long reviewId, String operation) {
-    userFeedStorage.addReviewEvent(userId, reviewId, operation);
+  public void addReviewEvent(Long userId, Long reviewId, OperationType operation) {
+    userFeedStorage.addEvent(userId, reviewId, EventType.REVIEW, operation);
   }
 
-  public void addFriendEvent(Long userId, Long friendId, String operation) {
-    userFeedStorage.addFriendEvent(userId, friendId, operation);
+  public void addFriendEvent(Long userId, Long friendId, OperationType operation) {
+    userFeedStorage.addEvent(userId, friendId, EventType.FRIEND, operation);
+  }
+
+  public void addEvent(Long userId, Long entityId, EventType eventType, OperationType operation) {
+    userFeedStorage.addEvent(userId, entityId, eventType, operation);
   }
 }
