@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.FilmReview;
 import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.storage.review.FilmReviewStorage;
@@ -32,19 +31,19 @@ public class FilmReviewService {
 
   public FilmReview create(FilmReview filmReview) {
     FilmReview created = filmReviewStorage.create(filmReview);
-    userFeedService.addEvent(created.getUserId(), created.getId(), EventType.REVIEW, OperationType.ADD);
+    userFeedService.addReviewEvent(created.getUserId(), created.getId(), OperationType.ADD);
     return created;
   }
 
   public FilmReview update(FilmReview filmReview) {
     FilmReview updated = filmReviewStorage.update(filmReview);
-    userFeedService.addEvent(updated.getUserId(), updated.getId(), EventType.REVIEW, OperationType.UPDATE);
+    userFeedService.addReviewEvent(updated.getUserId(), updated.getId(), OperationType.UPDATE);
     return updated;
   }
 
   public void delete(long id) {
     FilmReview review = findById(id);
-    userFeedService.addEvent(review.getUserId(), id, EventType.REVIEW, OperationType.REMOVE);
+    userFeedService.addReviewEvent(review.getUserId(), id, OperationType.REMOVE);
     filmReviewStorage.delete(id);
   }
 

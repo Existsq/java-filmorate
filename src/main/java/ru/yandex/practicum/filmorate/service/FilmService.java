@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -65,7 +64,7 @@ public class FilmService {
     userService.validateUserExists(userId);
     findById(filmId);
     filmStorage.addLike(filmId, userId);
-    userFeedService.addEvent(userId, filmId, EventType.LIKE, OperationType.ADD);
+    userFeedService.addLikeEvent(userId, filmId, OperationType.ADD);
     log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
   }
 
@@ -73,7 +72,7 @@ public class FilmService {
     userService.validateUserExists(userId);
     findById(filmId);
     filmStorage.removeLike(filmId, userId);
-    userFeedService.addEvent(userId, filmId, EventType.LIKE, OperationType.REMOVE);
+    userFeedService.addLikeEvent(userId, filmId, OperationType.REMOVE);
     log.info("Пользователь {} удалил лайк с фильма {}", userId, filmId);
   }
 

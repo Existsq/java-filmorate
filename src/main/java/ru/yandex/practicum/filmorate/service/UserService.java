@@ -44,7 +44,7 @@ public class UserService {
   public void addFriend(Long userId, Long friendId) {
     validateUsers(userId, friendId);
     userStorage.addFriendRequest(userId, friendId);
-    userFeedService.addEvent(userId, friendId, EventType.FRIEND, OperationType.ADD);
+    userFeedService.addFriendEvent(userId, friendId, OperationType.ADD);
   }
 
   public void deleteFriend(Long userId, Long friendId) {

@@ -9,7 +9,5 @@ import java.util.List;
 public interface UserFeedStorage {
   List<UserFeedEvent> getUserFeed(Long userId);
 
-  void addEvent(UserFeedEvent event);
-
   void addEvent(Long userId, Long entityId, EventType eventType, OperationType operation);
 }

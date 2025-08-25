@@ -20,15 +20,15 @@ public class UserFeedService {
   }
 
   public void addLikeEvent(Long userId, Long filmId, OperationType operation) {
-    userFeedStorage.addEvent(userId, filmId, EventType.LIKE, operation);
+    this.addEvent(userId, filmId, EventType.LIKE, operation);
   }
 
   public void addReviewEvent(Long userId, Long reviewId, OperationType operation) {
-    userFeedStorage.addEvent(userId, reviewId, EventType.REVIEW, operation);
+    this.addEvent(userId, reviewId, EventType.REVIEW, operation);
   }
 
   public void addFriendEvent(Long userId, Long friendId, OperationType operation) {
-    userFeedStorage.addEvent(userId, friendId, EventType.FRIEND, operation);
+    this.addEvent(userId, friendId, EventType.FRIEND, operation);
   }
 
   public void addEvent(Long userId, Long entityId, EventType eventType, OperationType operation) {
