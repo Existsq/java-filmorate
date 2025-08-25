@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.FilmReview;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.storage.review.FilmReviewStorage;
 import java.util.Collection;
 
@@ -12,8 +14,11 @@ import java.util.Collection;
 public class FilmReviewService {
   private final FilmReviewStorage filmReviewStorage;
 
-  public FilmReviewService(FilmReviewStorage filmReviewStorage) {
+  private final UserFeedService userFeedService;
+
+  public FilmReviewService(FilmReviewStorage filmReviewStorage, UserFeedService userFeedService) {
     this.filmReviewStorage = filmReviewStorage;
+    this.userFeedService = userFeedService;
   }
 
   public Collection<FilmReview> findAll(Long filmId, int count) {
@@ -26,14 +31,20 @@ public class FilmReviewService {
   }
 
   public FilmReview create(FilmReview filmReview) {
-    return filmReviewStorage.create(filmReview);
+    FilmReview created = filmReviewStorage.create(filmReview);
+    userFeedService.addEvent(created.getUserId(), created.getId(), EventType.REVIEW, OperationType.ADD);
+    return created;
   }
 
   public FilmReview update(FilmReview filmReview) {
-    return filmReviewStorage.update(filmReview);
+    FilmReview updated = filmReviewStorage.update(filmReview);
+    userFeedService.addEvent(updated.getUserId(), updated.getId(), EventType.REVIEW, OperationType.UPDATE);
+    return updated;
   }
 
   public void delete(long id) {
+    FilmReview review = findById(id);
+    userFeedService.addEvent(review.getUserId(), id, EventType.REVIEW, OperationType.REMOVE);
     filmReviewStorage.delete(id);
   }
 
