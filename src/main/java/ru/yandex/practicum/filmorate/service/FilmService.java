@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.DuplicateFilmLikeException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -63,9 +64,15 @@ public class FilmService {
   public void addLike(Long userId, Long filmId) {
     userService.validateUserExists(userId);
     findById(filmId);
-    filmStorage.addLike(filmId, userId);
-    userFeedService.addLikeEvent(userId, filmId, OperationType.ADD);
-    log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
+
+    if (!filmStorage.isLikedByUser(filmId, userId)) {
+      filmStorage.addLike(filmId, userId);
+      userFeedService.addLikeEvent(userId, filmId, OperationType.ADD);
+      log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
+    } else {
+      log.info("Пользователь {} уже лайкал фильм {}", userId, filmId);
+      throw new DuplicateFilmLikeException("Пользователь " + userId + " уже лайкал фильм " + filmId);
+    }
   }
 
   public void deleteLike(Long userId, Long filmId) {
