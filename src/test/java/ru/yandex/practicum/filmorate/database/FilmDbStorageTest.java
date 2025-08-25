@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
@@ -35,7 +36,8 @@ class FilmDbStorageTest {
             LocalDate.of(2020, 1, 1),
             120,
             new MPA(1L, "G"),
-            List.of(new Genre(1L, "Comedy")));
+            List.of(new Genre(1L, "Комедия")),
+            List.of(new Director(1L, "Director 1")));
   }
 
   @Test
@@ -65,7 +67,7 @@ class FilmDbStorageTest {
   @Test
   void testDeleteFilm() {
     Film saved = filmStorage.save(testFilm);
-    filmStorage.deleteById(saved.getId());
+    filmStorage.delete(saved.getId());
     Optional<Film> found = filmStorage.findFilmById(saved.getId());
     assertThat(found).isEmpty();
   }
@@ -74,12 +76,12 @@ class FilmDbStorageTest {
   void testAddAndRemoveLike() {
     Film saved = filmStorage.save(testFilm);
     filmStorage.addLike(saved.getId(), 1L);
-    List<Film> topFilms = filmStorage.findTopFilms(1);
+    List<Film> topFilms = filmStorage.findTopFilms(1, null, null);
     assertThat(topFilms).hasSize(1);
     assertThat(topFilms.getFirst().getId()).isEqualTo(saved.getId());
 
     filmStorage.removeLike(saved.getId(), 1L);
-    topFilms = filmStorage.findTopFilms(1);
+    topFilms = filmStorage.findTopFilms(1, null, null);
     assertThat(topFilms).hasSize(1);
   }
 
@@ -95,10 +97,11 @@ class FilmDbStorageTest {
                 LocalDate.of(2021, 1, 1),
                 100,
                 new MPA(1L, "G"),
+                List.of(),
                 List.of()));
     filmStorage.addLike(film2.getId(), 1L);
 
-    List<Film> topFilms = filmStorage.findTopFilms(2);
+    List<Film> topFilms = filmStorage.findTopFilms(2, null, null);
     assertThat(topFilms.get(0).getId()).isEqualTo(film2.getId());
     assertThat(topFilms.get(1).getId()).isEqualTo(film1.getId());
   }

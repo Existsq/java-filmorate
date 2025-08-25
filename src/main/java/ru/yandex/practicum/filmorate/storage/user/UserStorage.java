@@ -22,4 +22,6 @@ public interface UserStorage {
   Set<Long> getConfirmedFriends(Long userId);
 
   Map<Long, FriendshipStatus> getFriendRequests(Long userId);
+
+  void delete(Long userId);
 }

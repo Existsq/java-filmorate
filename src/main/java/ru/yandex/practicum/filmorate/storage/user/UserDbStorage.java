@@ -115,6 +115,13 @@ public class UserDbStorage implements UserStorage {
         userId);
   }
 
+  @Override
+  public void delete(Long userId) {
+    String sql = "DELETE FROM users WHERE id = ?";
+    jdbcTemplate.update(sql, userId);
+    log.info("Пользователь {} удален", userId);
+  }
+
   private void validateUsersExist(Long userId, Long friendId) {
     if (!userExists(userId) || !userExists(friendId)) {
       throw new NotFoundException("Один или оба пользователя не существуют");
