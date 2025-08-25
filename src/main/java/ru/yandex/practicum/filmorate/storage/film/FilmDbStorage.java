@@ -115,6 +115,13 @@ public class FilmDbStorage implements FilmStorage {
   }
 
   @Override
+  public boolean isLikedByUser(Long filmId, Long userId) {
+    String sql = "SELECT COUNT(*) FROM likes WHERE film_id = ? AND user_id = ?";
+    Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId, userId);
+    return count != null && count > 0;
+  }
+
+  @Override
   public void addLike(Long filmId, Long userId) {
     log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
     jdbcTemplate.update("INSERT INTO likes (user_id, film_id) VALUES (?, ?)", userId, filmId);
