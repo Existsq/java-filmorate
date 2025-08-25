@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 @Slf4j
@@ -21,11 +22,13 @@ public class FilmService {
 
   private final RecommendationService recommendationService;
 
-  public FilmService(FilmStorage filmStorage, UserService userService,
-                     RecommendationService recommendationService) {
+  private final UserFeedService userFeedService;
+
+  public FilmService(FilmStorage filmStorage, UserService userService, RecommendationService recommendationService, UserFeedService userFeedService) {
     this.filmStorage = filmStorage;
     this.userService = userService;
     this.recommendationService = recommendationService;
+    this.userFeedService = userFeedService;
   }
 
   public Film create(Film film) {
@@ -61,6 +64,7 @@ public class FilmService {
     userService.validateUserExists(userId);
     findById(filmId);
     filmStorage.addLike(filmId, userId);
+    userFeedService.addLikeEvent(userId, filmId, OperationType.ADD);
     log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
   }
 
@@ -68,6 +72,7 @@ public class FilmService {
     userService.validateUserExists(userId);
     findById(filmId);
     filmStorage.removeLike(filmId, userId);
+    userFeedService.addLikeEvent(userId, filmId, OperationType.REMOVE);
     log.info("Пользователь {} удалил лайк с фильма {}", userId, filmId);
   }
 
