@@ -3,8 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import java.util.*;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -13,11 +11,8 @@ public class UserService {
 
   private final UserStorage userStorage;
 
-  private final UserFeedService userFeedService;
-
-  public UserService(UserStorage userStorage, UserFeedService userFeedService) {
+  public UserService(UserStorage userStorage) {
     this.userStorage = userStorage;
-    this.userFeedService = userFeedService;
   }
 
   public Collection<User> findAll() {
@@ -43,14 +38,12 @@ public class UserService {
 
   public void addFriend(Long userId, Long friendId) {
     validateUsers(userId, friendId);
-    userStorage.addFriendRequest(userId, friendId);
-    userFeedService.addEvent(userId, friendId, EventType.FRIEND, OperationType.ADD);
+    userStorage.addFriendRequest(userId, friendId); // теперь это сразу добавление в друзья
   }
 
   public void deleteFriend(Long userId, Long friendId) {
     validateUsers(userId, friendId);
     userStorage.deleteFriendship(userId, friendId);
-    userFeedService.addEvent(userId, friendId, EventType.FRIEND, OperationType.REMOVE);
   }
 
   public Set<Long> getFriends(Long userId) {
