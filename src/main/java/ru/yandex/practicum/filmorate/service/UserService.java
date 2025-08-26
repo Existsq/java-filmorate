@@ -45,7 +45,7 @@ public class UserService {
 
   private void updateNameIfEmpty(User user) {
     if (user.getName() == null || user.getName().isBlank()) {
-      user.setName(user.getEmail());
+      user.setName(user.getLogin());
     }
   }
 
