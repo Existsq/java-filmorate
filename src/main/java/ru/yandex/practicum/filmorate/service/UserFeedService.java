@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.OperationType;
 import ru.yandex.practicum.filmorate.model.UserFeedEvent;
 import ru.yandex.practicum.filmorate.storage.feed.UserFeedStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 
@@ -15,7 +17,12 @@ public class UserFeedService {
 
   private final UserFeedStorage userFeedStorage;
 
+  private final UserStorage userStorage;
+
   public List<UserFeedEvent> getUserFeed(Long userId) {
+    if (userStorage.findUserById(userId).isEmpty()) {
+      throw new NotFoundException("Пользователь с id " + userId + " не найден");
+    }
     return userFeedStorage.getUserFeed(userId);
   }
 
