@@ -20,13 +20,16 @@ public class FilmService {
 
   private final UserService userService;
 
+  private final DirectorService directorService;
+
   private final RecommendationService recommendationService;
 
   private final UserFeedService userFeedService;
 
-  public FilmService(FilmStorage filmStorage, UserService userService, RecommendationService recommendationService, UserFeedService userFeedService) {
+  public FilmService(FilmStorage filmStorage, UserService userService, DirectorService directorService, RecommendationService recommendationService, UserFeedService userFeedService) {
     this.filmStorage = filmStorage;
     this.userService = userService;
+    this.directorService = directorService;
     this.recommendationService = recommendationService;
     this.userFeedService = userFeedService;
   }
@@ -100,6 +103,7 @@ public class FilmService {
   }
 
   public List<Film> getFilmsByDirector(Long directorId, String sortBy) {
+    directorService.findById(directorId);
     return filmStorage.findByDirector(directorId, sortBy);
   }
 
