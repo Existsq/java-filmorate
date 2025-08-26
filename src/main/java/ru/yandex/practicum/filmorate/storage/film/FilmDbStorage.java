@@ -161,7 +161,7 @@ public class FilmDbStorage implements FilmStorage {
 
     sqlBuilder.append("""
         GROUP BY f.id, m.name
-        ORDER BY COUNT(DISTINCT l.user_id) DESC, f.id DESC
+        ORDER BY COUNT(DISTINCT l.user_id) DESC, f.id ASC
         LIMIT ?
     """);
 
