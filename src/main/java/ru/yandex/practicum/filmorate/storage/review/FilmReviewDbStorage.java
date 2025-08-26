@@ -73,7 +73,7 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
         }
 
         sqlQuery += """
-            LIMIT :limit
+            ORDER BY useful DESC LIMIT :limit
         """;
 
         log.info("Возразаем список отзывов");
@@ -84,7 +84,7 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
     public FilmReview create(FilmReview filmReview) {
         validateUserAndFilm(filmReview.getUserId(), filmReview.getFilmId());
 
-        log.info("Начало создания отзыва - {}", filmReview.getId());
+        log.info("Начало создания отзыва - {}", filmReview);
 
         final String sqlQuery = """
            INSERT INTO film_reviews(content, is_positive, film_id, user_id)
@@ -106,34 +106,41 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
         }
 
         filmReview.setId(id);
-        log.info("Создания отзыва - завершено");
+        log.info("Создания отзыва - завершено {}", filmReview);
         return filmReview;
     }
 
     @Override
     public FilmReview update(FilmReview filmReview) {
-        log.info("Начало обновления отзыва - {}", filmReview.getId());
-        validateReviewAndUserAndFilm(filmReview.getId(), filmReview.getUserId(), filmReview.getFilmId());
+        log.info("Начало обновления отзыва - {}", filmReview);
+        validateUserAndFilm(filmReview.getUserId(), filmReview.getFilmId());
+
+        Optional<FilmReview> filmReviewDb = getById(filmReview.getId());
+
+        if (filmReviewDb.isEmpty()) {
+            throw new NotFoundException("Отзыв с id = " + filmReview.getId() + " не найден");
+        }
+
+        filmReview.setFilmId(filmReviewDb.get().getFilmId());
+        filmReview.setUserId(filmReviewDb.get().getUserId());
 
         final String sqlQuery = """
            UPDATE film_reviews
-           SET content = :content, is_positive = :isPositive, film_id = :filmId, user_id = :userId
+           SET content = :content, is_positive = :isPositive
            WHERE id = :id
         """;
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", filmReview.getId())
                 .addValue("content", filmReview.getContent())
-                .addValue("isPositive", filmReview.getIsPositive())
-                .addValue("filmId", filmReview.getFilmId())
-                .addValue("userId", filmReview.getUserId());
+                .addValue("isPositive", filmReview.getIsPositive());
 
         int rowsUpdated = namedJdbc.update(sqlQuery, params);
 
         if (rowsUpdated == 0) {
             throw new InternalServerException("Не удалось обновить данные");
         }
-        log.info("завершилось обновления отзыва - {}", filmReview.getId());
+        log.info("завершилось обновления отзыва - {}", filmReview);
         return filmReview;
     }
 
@@ -217,12 +224,6 @@ public class FilmReviewDbStorage implements FilmReviewStorage {
     private void validateReviewAndUser(long reviewId, long userId) {
         validateReviewExist(reviewId);
         validateUserExist(userId);
-    }
-
-    private void validateReviewAndUserAndFilm(long reviewId, long userId, long filmId) {
-        validateReviewExist(reviewId);
-        validateUserExist(userId);
-        validateFilmExist(filmId);
     }
 
     private void validateUserAndFilm(long userId, long filmId) {
