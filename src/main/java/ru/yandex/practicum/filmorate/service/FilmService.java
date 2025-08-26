@@ -63,9 +63,14 @@ public class FilmService {
   public void addLike(Long userId, Long filmId) {
     userService.validateUserExists(userId);
     findById(filmId);
-    filmStorage.addLike(filmId, userId);
-    userFeedService.addLikeEvent(userId, filmId, OperationType.ADD);
-    log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
+
+    if (!filmStorage.isLikedByUser(filmId, userId)) {
+      filmStorage.addLike(filmId, userId);
+      userFeedService.addLikeEvent(userId, filmId, OperationType.ADD);
+      log.info("Пользователь {} поставил лайк фильму {}", userId, filmId);
+    } else {
+      log.info("Пользователь {} уже лайкал фильм {}", userId, filmId);
+    }
   }
 
   public void deleteLike(Long userId, Long filmId) {

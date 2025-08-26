@@ -14,6 +14,8 @@ public interface FilmStorage {
 
   Collection<Film> findAll();
 
+  boolean isLikedByUser(Long filmId, Long userId);
+
   void addLike(Long filmId, Long userId);
 
   void removeLike(Long filmId, Long userId);

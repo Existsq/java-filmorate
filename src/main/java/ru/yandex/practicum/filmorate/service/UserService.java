@@ -31,6 +31,7 @@ public class UserService {
   }
 
   public User create(User user) {
+    updateNameIfEmpty(user);
     return userStorage.save(user);
   }
 
@@ -38,7 +39,14 @@ public class UserService {
     if (!userStorage.findUserById(user.getId()).isPresent()) {
       throw new NotFoundException("Пользователь с id " + user.getId() + " не найден");
     }
+    updateNameIfEmpty(user);
     return userStorage.save(user);
+  }
+
+  private void updateNameIfEmpty(User user) {
+    if (user.getName() == null || user.getName().isBlank()) {
+      user.setName(user.getLogin());
+    }
   }
 
   public void addFriend(Long userId, Long friendId) {
