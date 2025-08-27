@@ -17,3 +17,5 @@ INSERT INTO genres (id, name) VALUES
                                   (4, 'Триллер'),
                                   (5, 'Документальный'),
                                   (6, 'Боевик');
+
+INSERT INTO directors (id, name) VALUES (1, 'Director 1');
