@@ -15,8 +15,8 @@ public class FilmReviewController {
 
   @GetMapping
   public Collection<FilmReview> findAll(
-          @RequestParam(name = "filmId", required = false) Long filmId,
-          @RequestParam(name = "count", defaultValue = "10") int count
+          @RequestParam(required = false) Long filmId,
+          @RequestParam(defaultValue = "10") int count
   ) {
     return filmReviewService.findAll(filmId, count);
   }

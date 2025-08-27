@@ -58,7 +58,7 @@ public class UserService {
   public void deleteFriend(Long userId, Long friendId) {
     validateUsers(userId, friendId);
     userStorage.deleteFriendship(userId, friendId);
-    userFeedService.addEvent(userId, friendId, EventType.FRIEND, OperationType.REMOVE);
+    userFeedService.addFriendEvent(userId, friendId, OperationType.REMOVE);
   }
 
   public Set<Long> getFriends(Long userId) {
